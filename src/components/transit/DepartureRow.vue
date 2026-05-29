@@ -16,7 +16,7 @@
     </div>
 
     <div class="departure-row__time">
-      <span class="departure-row__hour">{{ departure.hour }}</span>
+      <span class="departure-row__hour">{{ formatTime(departure.hour) }}</span>
       <span class="departure-row__minutes">{{ minutesLeft }}</span>
     </div>
   </div>
@@ -29,14 +29,24 @@ const props = defineProps({
   departure: { type: Object, required: true }
 })
 
+const formatTime = (timeString) => {
+  if (!timeString) return ''
+  const [h, m] = timeString.split(':')
+  return `${h}:${m}`
+}
+
 const minutesLeft = computed(() => {
-  const [h, m, s] = (props.departure.hour || '').split(':').map(Number)
+  const [h, m] = (props.departure.hour || '').split(':').map(Number)
   if (isNaN(h)) return ''
+
   const now = new Date()
-  const dep = new Date()
-  dep.setHours(h, m, s || 0, 0)
-  const diff = Math.round((dep - now) / 60000)
-  if (diff < 0) return 'partito'
+  
+  const nowInMinutes = now.getHours() * 60 + now.getMinutes()
+  const depInMinutes = h * 60 + m
+
+  const diff = (depInMinutes - nowInMinutes + 1440) % 1440
+
+  if (diff > 1400) return 'partito' 
   if (diff === 0) return 'ora'
   return `${diff} min`
 })
