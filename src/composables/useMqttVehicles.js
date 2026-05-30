@@ -1,9 +1,10 @@
 import { ref, onUnmounted } from 'vue'
 import mqtt from 'mqtt'
 
-const BROKER = 'wss://mapi.5t.torino.it/scre'
+const BROKER       = 'wss://mapi.5t.torino.it/scre'
+const BATCH_MS     = 250
 const TORINO_BOUNDS = { latMin: 44, latMax: 46, lngMin: 7, lngMax: 8.5 }
-const LINE_PATTERN = /^\d+[A-Z]?$/
+const LINE_PATTERN  = /^\d+[A-Z]?$/
 
 function parseTopic(topic) {
   const parts = topic.split('/')
@@ -17,16 +18,33 @@ function isInTorino(lat, lng) {
 }
 
 export function useMqttVehicles() {
-  const vehicles   = ref({})
-  const connected  = ref(false)
-  const connecting = ref(false)
-  const error      = ref(null)
+  const vehicles    = ref({})
+  const updateTick  = ref(0)   // counter incrementato al flush — watch su questo invece di deep:true
+  const connected   = ref(false)
+  const connecting  = ref(false)
+  const error       = ref(null)
   let client = null
+  let batch  = {}
+  let batchTimer = null
+
+  function flushBatch() {
+    batchTimer = null
+    if (Object.keys(batch).length === 0) return
+    Object.assign(vehicles.value, batch)
+    batch = {}
+    updateTick.value++
+  }
+
+  function scheduleBatch() {
+    if (!batchTimer) batchTimer = setTimeout(flushBatch, BATCH_MS)
+  }
 
   function connect() {
     disconnect()
-    vehicles.value = {}
-    error.value    = null
+    vehicles.value   = {}
+    batch            = {}
+    updateTick.value = 0
+    error.value      = null
     connecting.value = true
 
     try {
@@ -56,17 +74,19 @@ export function useMqttVehicles() {
 
           const id = tripId || topic
 
-          vehicles.value[id] = {
+          batch[id] = {
             id,
             line:      parseTopic(topic),
             lat:       flatLat,
             lng:       flatLng,
             heading:   parseFloat(heading) || 0,
             speed:     parseFloat(speed)   || 0,
-            direction: direction  || '',
+            direction: direction || '',
             nextStop:  nextStop ? String(nextStop).replace('gtt:', '') : '',
           }
-        } catch { /* malformed payload — skip silently */ }
+
+          scheduleBatch()
+        } catch { /* malformed payload */ }
       })
 
       client.on('error',     err => { error.value = err.message; connected.value = false; connecting.value = false })
@@ -79,12 +99,14 @@ export function useMqttVehicles() {
   }
 
   function disconnect() {
+    if (batchTimer) { clearTimeout(batchTimer); batchTimer = null }
     if (client) { try { client.end(true) } catch { /* ignore */ } client = null }
     connected.value  = false
     connecting.value = false
+    batch = {}
   }
 
   onUnmounted(disconnect)
 
-  return { vehicles, connected, connecting, error, connect, disconnect }
+  return { vehicles, updateTick, connected, connecting, error, connect, disconnect }
 }

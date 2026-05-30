@@ -84,7 +84,7 @@ let map = null
 let markers = {}
 let fittedOnce = false
 
-const { vehicles, connected, connecting, error, connect, disconnect } = useMqttVehicles()
+const { vehicles, updateTick, connected, connecting, error, connect, disconnect } = useMqttVehicles()
 
 const filteredVehicles = computed(() =>
   activeFilter.value
@@ -124,14 +124,8 @@ function makeBusIcon(vehicle) {
   })
 }
 
-let renderTimer = null
-
 function scheduleRender() {
-  if (renderTimer) return
-  renderTimer = setTimeout(() => {
-    renderTimer = null
-    renderMarkers()
-  }, 200)
+  renderMarkers()
 }
 
 function renderMarkers() {
@@ -174,7 +168,7 @@ function fitAll() {
   }
 }
 
-watch(vehicles, scheduleRender, { deep: true })
+watch(updateTick, scheduleRender)
 watch(activeFilter, () => { fittedOnce = false; renderMarkers() })
 
 // ——— Leaflet init ———
