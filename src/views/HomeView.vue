@@ -88,16 +88,6 @@
             <template #icon-right><AppIcon name="arrow_right" size="sm" /></template>
           </BaseButton>
         </div>
-        <div class="quick__pills">
-          <button
-            v-for="s in popularStops"
-            :key="s.id"
-            class="quick__pill"
-            @click="goToStopId(s.id)"
-          >
-            {{ s.name }}
-          </button>
-        </div>
       </div>
     </section>
 
@@ -114,20 +104,9 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 const router = useRouter()
 const quickStop = ref('')
 
-const popularStops = [
-  { id: '1572', name: 'Porta Nuova' },
-  { id: '631',  name: 'Porta Susa' },
-  { id: '204',  name: 'P.za Vittorio' },
-  { id: '1800', name: 'C.so Francia' },
-]
-
 function goToStop() {
   const id = quickStop.value.trim()
   if (id) router.push({ path: '/fermate', query: { stop: id } })
-}
-
-function goToStopId(id) {
-  router.push({ path: '/fermate', query: { stop: id } })
 }
 </script>
 
@@ -282,9 +261,10 @@ a.feature-card:hover {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   line-height: var(--line-height-normal);
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .feature-card__arrow {
@@ -343,29 +323,6 @@ a.feature-card:hover .feature-card__arrow {
 
 .quick__form > :first-child { flex: 1; }
 
-.quick__pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.quick__pill {
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  padding: var(--space-1) var(--space-3);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.quick__pill:hover {
-  background: var(--color-primary-alpha);
-  border-color: var(--color-border-active);
-  color: var(--color-primary-light);
-}
 
 /* ── Tablet ── */
 @media (min-width: 600px) {

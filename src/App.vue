@@ -1,17 +1,13 @@
 <template>
   <div class="app">
     <AppNavbar />
-    <RouterView v-slot="{ Component }">
-      <Transition name="page">
-        <component :is="Component" :key="$route.path" />
-      </Transition>
-    </RouterView>
+    <RouterView />
     <footer class="app-footer">
       <div class="app-footer__inner">
         <div class="app-footer__credits">
           <span>Creato da <a href="https://anitaliberatore.dev" target="_blank" rel="noopener" class="app-footer__link">Anita Liberatore</a></span>
           <span class="app-footer__sep">·</span>
-          <span>Dati da <a href="https://gpa.madbob.org" target="_blank" rel="noopener" class="app-footer__link">GTT Pirate API</a> & <a href="https://mato.muoversiatorino.it" target="_blank" rel="noopener" class="app-footer__link">MATO 5T</a></span>
+          <span>Dati da <a href="https://www.gtt.to.it" target="_blank" rel="noopener" class="app-footer__link">GTT</a> & <a href="https://mato.muoversiatorino.it" target="_blank" rel="noopener" class="app-footer__link">MATO 5T</a></span>
         </div>
         <span class="app-footer__disclaimer">Servizio non ufficiale</span>
       </div>

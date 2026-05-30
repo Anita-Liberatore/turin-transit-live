@@ -5,7 +5,6 @@
     </div>
 
     <div class="departure-row__info">
-      <span class="departure-row__dest">{{ departure.destination || 'Capolinea' }}</span>
       <span v-if="departure.realtime" class="status-badge status-badge--live">
         <span class="status-badge__dot"></span>
         In tempo reale

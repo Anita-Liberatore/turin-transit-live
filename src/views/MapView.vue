@@ -61,7 +61,6 @@ import VehicleMap from '@/components/transit/VehicleMap.vue'
 .map-view__sub {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  padding-left: calc(24px + var(--space-3));
 }
 
 .map-view__map {

@@ -7,57 +7,45 @@
           <AppIcon name="stop" size="lg" class="stops-view__title-icon" />
           <h1 class="stops-view__title">Fermate</h1>
         </div>
-        <p class="stops-view__sub">Cerca una fermata GTT per vedere le prossime partenze in tempo reale</p>
+        <p class="stops-view__sub">Inserisci il numero della fermata GTT</p>
       </header>
 
-      <!-- Ricerca -->
       <div class="stops-view__search">
         <BaseInput
           v-model="inputStop"
           placeholder="Numero fermata"
           clearable
           class="stops-view__input"
-          @keyup.enter="addStop"
+          @keyup.enter="search"
         >
           <template #icon><AppIcon name="search" size="sm" /></template>
         </BaseInput>
-        <BaseButton @click="addStop" :disabled="!inputStop.trim()">
-          <template #icon><AppIcon name="plus" size="sm" /></template>
-          Aggiungi
-        </BaseButton>
-      </div>
-
-      <!-- Pills suggerite -->
-      <div class="stops-view__pills">
-        <span class="stops-view__pills-label">Fermate rapide:</span>
         <button
-          v-for="s in suggestions"
-          :key="s.id"
-          class="stops-pill"
-          @click="addStopId(s.id)"
+          class="stops-view__search-btn"
+          :disabled="!inputStop.trim()"
+          aria-label="Cerca fermata"
+          @click="search"
         >
-          {{ s.name }}
-          <em>{{ s.id }}</em>
+          <AppIcon name="arrow_right" size="md" />
         </button>
       </div>
 
-      <!-- Griglia fermate -->
-      <div v-if="activeStops.length" class="stops-view__grid">
-        <StopPanel
-          v-for="stop in activeStops"
-          :key="stop"
-          :stop-id="stop"
-          @remove="removeStop(stop)"
-        />
-      </div>
+      <StopCard
+        v-if="activeStopId"
+        :stop-id="activeStopId"
+        :lines="lines"
+        :loading="loading"
+        :error="error"
+        @refresh="refresh"
+        @close="activeStopId = ''"
+      />
 
-      <!-- Empty state -->
       <div v-else class="stops-view__empty">
         <div class="stops-view__empty-icon">
           <AppIcon name="bus" size="xl" />
         </div>
-        <h2>Nessuna fermata attiva</h2>
-        <p>Cerca una fermata sopra o selezionane una tra quelle rapide</p>
+        <h2>Nessuna fermata</h2>
+        <p>Inserisci un numero di fermata per vedere le partenze</p>
       </div>
 
     </div>
@@ -65,41 +53,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
-import StopPanel from '@/components/transit/StopPanel.vue'
+import StopCard from '@/components/transit/StopCard.vue'
+import { useStopDepartures } from '@/composables/useStopDepartures'
 
 const route = useRoute()
-const inputStop = ref('')
-const activeStops = ref([])
 
-const suggestions = [
-  { id: '1572', name: 'Porta Nuova' },
-  { id: '631',  name: 'Porta Susa' },
-  { id: '204',  name: 'P.za Vittorio' },
-  { id: '1800', name: 'C.so Francia' },
-  { id: '885',  name: 'Lingotto' },
-]
+const inputStop   = ref('')
+const activeStopId = ref('')
 
-function addStop() {
+const { lines, loading, error, refresh } = useStopDepartures(activeStopId)
+
+function search() {
   const id = inputStop.value.trim()
-  if (id) { addStopId(id); inputStop.value = '' }
+  if (!id) return
+  activeStopId.value = id
+  inputStop.value = ''
 }
 
-function addStopId(id) {
-  if (!activeStops.value.includes(id)) activeStops.value.push(id)
-}
-
-function removeStop(id) {
-  activeStops.value = activeStops.value.filter(s => s !== id)
-}
-
-onMounted(() => {
-  if (route.query.stop) addStopId(String(route.query.stop))
-})
+watch(
+  () => route.query.stop,
+  val => {
+    if (val) {
+      const id = String(val)
+      inputStop.value    = id
+      activeStopId.value = id
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
@@ -109,14 +95,13 @@ onMounted(() => {
 }
 
 .stops-view__inner {
-  max-width: var(--container-max);
+  max-width: 640px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
 }
 
-/* Header */
 .stops-view__header {
   display: flex;
   flex-direction: column;
@@ -142,10 +127,8 @@ onMounted(() => {
 .stops-view__sub {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  padding-left: calc(24px + var(--space-3));
 }
 
-/* Search */
 .stops-view__search {
   display: flex;
   gap: var(--space-3);
@@ -153,56 +136,34 @@ onMounted(() => {
 
 .stops-view__input { flex: 1; }
 
-/* Pills */
-.stops-view__pills {
+.stops-view__search-btn {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.stops-view__pills-label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-medium);
-  white-space: nowrap;
-}
-
-.stops-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  padding: 3px var(--space-3);
-  cursor: pointer;
+  justify-content: center;
   transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(230, 51, 41, 0.3);
 }
 
-.stops-pill em {
-  font-style: normal;
-  color: var(--color-text-muted);
-  font-size: 10px;
+.stops-view__search-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  box-shadow: 0 4px 14px rgba(230, 51, 41, 0.45);
+  transform: translateY(-1px);
 }
 
-.stops-pill:hover {
-  background: var(--color-primary-alpha);
-  border-color: var(--color-border-active);
-  color: var(--color-primary-light);
+.stops-view__search-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Grid */
-.stops-view__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-}
-
-/* Empty */
 .stops-view__empty {
   display: flex;
   flex-direction: column;
@@ -222,7 +183,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted);
 }
 
 .stops-view__empty h2 {
@@ -232,10 +192,9 @@ onMounted(() => {
 
 .stops-view__empty p {
   font-size: var(--font-size-sm);
-  max-width: 300px;
+  max-width: 280px;
 }
 
-/* ── Tablet ── */
 @media (min-width: 600px) {
   .stops-view {
     padding: var(--space-8) var(--space-6);
@@ -243,13 +202,6 @@ onMounted(() => {
 
   .stops-view__title {
     font-size: var(--font-size-3xl);
-  }
-}
-
-/* ── Desktop ── */
-@media (min-width: 900px) {
-  .stops-view__grid {
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   }
 }
 </style>

@@ -11,15 +11,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/gpa-api': {
-        target: 'http://gpa.madbob.org',
+      '/gtt-proxy': {
+        target: 'https://www.gtt.to.it',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/gpa-api/, '')
-      },
-      '/mato-api': {
-        target: 'https://mato.muoversiatorino.it',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/mato-api/, '')
+        rewrite: path => path.replace(/^\/gtt-proxy/, '')
       }
     }
   }

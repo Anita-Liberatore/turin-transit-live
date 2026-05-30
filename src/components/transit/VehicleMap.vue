@@ -3,36 +3,30 @@
 
     <!-- Toolbar -->
     <div class="vehicle-map__toolbar">
-      <LiveStatusBadge :connected="connected" :connecting="connecting" :count="totalVehicles" />
-
-      <div class="vehicle-map__right">
+      <div class="vehicle-map__search">
         <BaseInput
           v-model="lineFilter"
-          icon="🔍"
-          placeholder="Filtra per linea"
+          placeholder="Cerca linea"
           clearable
           class="vm-filter-input"
-        />
-        <BaseButton variant="secondary" size="sm" @click="fitAll" :disabled="!totalVehicles">
-          ⊕ Centra
-        </BaseButton>
+          @keyup.enter="onSearch"
+        >
+          <template #icon><AppIcon name="search" size="sm" /></template>
+        </BaseInput>
+        <button
+          class="vm-search-btn"
+          :disabled="!lineFilter.trim()"
+          aria-label="Cerca"
+          @click="onSearch"
+        >
+          <AppIcon name="arrow_right" size="md" />
+        </button>
       </div>
-    </div>
 
-    <!-- Chips linee attive -->
-    <div v-if="topLines.length" class="vehicle-map__stats">
-      <span class="vm-stats-label">Linee attive:</span>
-      <LineChip
-        v-for="l in topLines"
-        :key="l.line"
-        :line="l.line"
-        :count="l.count"
-        :active="lineFilter === l.line"
-        @click="lineFilter = lineFilter === l.line ? '' : l.line"
-      />
-      <button v-if="lineFilter" class="vm-clear-filter" @click="lineFilter = ''">
-        ✕ rimuovi filtro
-      </button>
+      <div v-if="connected && activeFilter" class="vm-status">
+        <span class="vm-status__dot"></span>
+        Linea {{ activeFilter }} · {{ filteredVehicles.length }} mezzi
+      </div>
     </div>
 
     <!-- Mappa -->
@@ -60,13 +54,16 @@
         </div>
       </Transition>
 
-      <!-- Pannello info mezzo -->
-      <VehicleInfoPanel :vehicle="selected" @close="selected = null" />
+      <!-- Hint: nessuna linea cercata -->
+      <Transition name="fade-overlay">
+        <div v-if="!activeFilter && !connecting" class="vm-overlay vm-overlay--hint">
+          <div class="vm-overlay__box">
+            <div class="vm-overlay__icon">🚌</div>
+            <p class="vm-overlay__msg">Cerca una linea GTT</p>
+          </div>
+        </div>
+      </Transition>
 
-      <!-- Counter mezzi filtrati -->
-      <div v-if="lineFilter" class="vm-filter-badge">
-        Linea {{ lineFilter }} · {{ filteredVehicles.length }} mezzi
-      </div>
     </div>
 
   </div>
@@ -76,51 +73,38 @@
 import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import L from 'leaflet'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import LineChip from '@/components/ui/LineChip.vue'
-import LiveStatusBadge from '@/components/ui/LiveStatusBadge.vue'
-import VehicleInfoPanel from '@/components/transit/VehicleInfoPanel.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { lineColor } from '@/utils/lineColors'
 import { useMqttVehicles } from '@/composables/useMqttVehicles'
 
-// ——— State ———
-const mapEl = ref(null)
+const mapEl    = ref(null)
 const lineFilter = ref('')
-const selected = ref(null)
+const activeFilter = ref('')
 let map = null
 let markers = {}
 let fittedOnce = false
 
 const { vehicles, connected, connecting, error, connect, disconnect } = useMqttVehicles()
 
-// ——— Computed ———
-const totalVehicles = computed(() => Object.keys(vehicles.value).length)
+const filteredVehicles = computed(() =>
+  activeFilter.value
+    ? Object.values(vehicles.value).filter(v => v.line === activeFilter.value)
+    : []
+)
 
-const filteredVehicles = computed(() => {
-  const all = Object.values(vehicles.value)
-  if (!lineFilter.value) return all
-  return all.filter(v => v.line === lineFilter.value)
-})
+function onSearch() {
+  const line = lineFilter.value.trim()
+  if (!line) return
+  activeFilter.value = line
+  lineFilter.value = ''
+  fittedOnce = false
+}
 
-const topLines = computed(() => {
-  const counts = {}
-  Object.values(vehicles.value).forEach(v => {
-    if (v.line && v.line !== '?') counts[v.line] = (counts[v.line] || 0) + 1
-  })
-  return Object.entries(counts)
-    .map(([line, count]) => ({ line, count }))
-    .sort((a, b) => parseInt(a.line) - parseInt(b.line))
-    .slice(0, 16)
-})
-
-// ——— Icona bus direzionale ———
 function makeBusIcon(vehicle) {
-  const heading = vehicle.heading || 0
-  const faded = !!(lineFilter.value && vehicle.line !== lineFilter.value)
-  const color = faded ? '#6b7280' : lineColor(vehicle.line)
-  const opacity = faded ? 0.4 : 1
-
-  // Il numero viene counter-rotato per rimanere leggibile
+  const heading    = vehicle.heading || 0
+  const faded      = !!(lineFilter.value && vehicle.line !== lineFilter.value)
+  const color      = faded ? '#6b7280' : lineColor(vehicle.line)
+  const opacity    = faded ? 0.4 : 1
   const counterRot = -heading
 
   return L.divIcon({
@@ -140,7 +124,6 @@ function makeBusIcon(vehicle) {
   })
 }
 
-// ——— Render markers (throttled) ———
 let renderTimer = null
 
 function scheduleRender() {
@@ -158,12 +141,10 @@ function renderMarkers() {
 
   const currentIds = new Set(current.map(v => v.id))
 
-  // Rimuovi marker spariti
   Object.keys(markers).forEach(id => {
     if (!currentIds.has(id)) { markers[id].remove(); delete markers[id] }
   })
 
-  // Aggiungi/aggiorna
   current.forEach(v => {
     if (markers[v.id]) {
       markers[v.id].setLatLng([v.lat, v.lng])
@@ -171,7 +152,6 @@ function renderMarkers() {
     } else {
       const m = L.marker([v.lat, v.lng], { icon: makeBusIcon(v) })
         .addTo(map)
-        .on('click', () => { selected.value = v })
       markers[v.id] = m
     }
   })
@@ -194,9 +174,8 @@ function fitAll() {
   }
 }
 
-// Watch diretto su vehicles — più affidabile della computed
 watch(vehicles, scheduleRender, { deep: true })
-watch(lineFilter, () => { fittedOnce = false; renderMarkers() })
+watch(activeFilter, () => { fittedOnce = false; renderMarkers() })
 
 // ——— Leaflet init ———
 onMounted(async () => {
@@ -210,12 +189,15 @@ onMounted(async () => {
 
   L.control.zoom({ position: 'bottomright' }).addTo(map)
 
-  // Tile layer dettagliato - Voyager (colori vivaci, ottima leggibilità stradale)
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(map)
+  L.tileLayer(
+    `https://api.mapbox.com/styles/v1/mapbox/navigation-day-v1/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`,
+    {
+      attribution: '© <a href="https://www.mapbox.com/">Mapbox</a> © <a href="https://www.openstreetmap.org/">OSM</a>',
+      tileSize: 512,
+      zoomOffset: -1,
+      maxZoom: 22,
+    }
+  ).addTo(map)
 
   map.invalidateSize()
 
@@ -301,43 +283,67 @@ onUnmounted(() => {
   gap: var(--space-4);
   flex-wrap: wrap;
 }
-.vehicle-map__right {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-.vm-filter-input { width: 190px; }
 
-/* Line chips bar */
-.vehicle-map__stats {
+.vehicle-map__search {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  flex-wrap: wrap;
-  padding: var(--space-1) 0;
+  flex: 1;
+  max-width: 420px;
 }
-.vm-stats-label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-medium);
-  white-space: nowrap;
-}
-.vm-clear-filter {
-  background: none;
-  border: none;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+
+.vm-filter-input { flex: 1; }
+
+.vm-search-btn {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
   cursor: pointer;
-  padding: 2px var(--space-2);
-  transition: color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(230, 51, 41, 0.3);
 }
-.vm-clear-filter:hover { color: var(--color-danger); }
+
+.vm-search-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  box-shadow: 0 4px 14px rgba(230, 51, 41, 0.45);
+  transform: translateY(-1px);
+}
+
+.vm-search-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.vm-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-success);
+}
+
+.vm-status__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-realtime);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
 
 /* Map */
 .vehicle-map__wrap {
   position: relative;
   flex: 1;
-  min-height: 520px;
+  min-height: clamp(320px, 60dvh, 700px);
   border-radius: var(--radius-xl);
   overflow: hidden;
   border: 1px solid var(--color-border);
@@ -359,8 +365,8 @@ onUnmounted(() => {
   background: rgba(248,249,252,0.88);
   backdrop-filter: blur(10px);
 }
-.vm-overlay--connecting {
-  background: rgba(248,249,252,0.92);
+.vm-overlay--hint {
+  background: rgba(248,249,252,0.82);
 }
 .vm-overlay--error {
   background: rgba(254,242,242,0.92);

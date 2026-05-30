@@ -1,11 +1,12 @@
 import { ref, watch, onUnmounted } from 'vue'
-import { fetchStopDepartures } from '@/services/gttApi'
+import { fetchStopLines } from '@/services/gttApi'
 
-export function useStopDepartures(stopId, autoRefreshMs = 30000) {
-  const departures = ref([])
+const REFRESH_INTERVAL_MS = 30_000
+
+export function useStopDepartures(stopId) {
+  const lines   = ref([])
   const loading = ref(false)
-  const error = ref(null)
-  const lastUpdate = ref(null)
+  const error   = ref(null)
   let timer = null
 
   async function load() {
@@ -13,8 +14,7 @@ export function useStopDepartures(stopId, autoRefreshMs = 30000) {
     loading.value = true
     error.value = null
     try {
-      departures.value = await fetchStopDepartures(stopId.value)
-      lastUpdate.value = new Date()
+      lines.value = await fetchStopLines(stopId.value)
     } catch (e) {
       error.value = e.message
     } finally {
@@ -23,21 +23,17 @@ export function useStopDepartures(stopId, autoRefreshMs = 30000) {
   }
 
   function startPolling() {
-    stopPolling()
+    clearInterval(timer)
     load()
-    timer = setInterval(load, autoRefreshMs)
+    timer = setInterval(load, REFRESH_INTERVAL_MS)
   }
 
-  function stopPolling() {
-    if (timer) clearInterval(timer)
-  }
-
-  watch(stopId, (val) => {
+  watch(stopId, val => {
     if (val) startPolling()
-    else { stopPolling(); departures.value = [] }
+    else { clearInterval(timer); lines.value = [] }
   }, { immediate: true })
 
-  onUnmounted(stopPolling)
+  onUnmounted(() => clearInterval(timer))
 
-  return { departures, loading, error, lastUpdate, refresh: load }
+  return { lines, loading, error, refresh: load }
 }
