@@ -4,7 +4,7 @@
 ### *“Anduma? Sì, ma in bus!”* — La piattaforma intelligente per muoversi in città senza stress.
 
 [![Status](https://img.shields.io/badge/Status-Live-success?style=for-the-badge&logo=vercel)]()
-[Esplora l'App Live 🚀](https://andumabus.com/#/) • [Segnala un Bug 🐛](https://github.com/Anita-Liberatore/andumabus/issues) 
+[Esplora l'App Live 🚀](https://andumabus.com/#/) • [Segnala un Bug 🐛](https://github.com/Anita-Liberatore/turin-transit-live/issues) 
 </div>
 
 ---
