@@ -94,10 +94,6 @@ a:hover {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
 
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 8px var(--color-realtime-glow); }
@@ -112,9 +108,6 @@ a:hover {
   animation: fadeInUp var(--transition-base) ease both;
 }
 
-.slide-in-right {
-  animation: slideInRight var(--transition-base) ease both;
-}
 
 .text-muted {
   color: var(--color-text-muted);

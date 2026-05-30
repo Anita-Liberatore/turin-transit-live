@@ -393,11 +393,6 @@ onUnmounted(() => {
   font-weight: var(--font-weight-semibold) !important;
   color: var(--color-secondary) !important;
 }
-.vm-overlay__note {
-  font-size: var(--font-size-xs) !important;
-  color: #999 !important;
-  font-family: var(--font-family-mono);
-}
 .vm-big-spinner {
   width: 60px; height: 60px;
   border: 4px solid #eee;
@@ -407,22 +402,6 @@ onUnmounted(() => {
 }
 
 
-/* Filtro badge */
-.vm-filter-badge {
-  position: absolute;
-  top: var(--space-4);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 700;
-  background: rgba(255,255,255,0.95);
-  border-radius: var(--radius-full);
-  padding: var(--space-2) var(--space-5);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: #333;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-  white-space: nowrap;
-}
 
 /* Transitions */
 .fade-overlay-enter-active,
