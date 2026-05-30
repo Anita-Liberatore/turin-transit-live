@@ -6,7 +6,7 @@
 [![Status](https://img.shields.io/badge/Status-Live-success?style=for-the-badge&logo=vercel)]()
 [![Tech](https://img.shields.io/badge/Made%20with-Vue%20/%20React-blue?style=for-the-badge&logo=javascript)]()
 
-[Esplora l'App Live 🚀](https://andumabus.com/#/) • [Segnala un Bug 🐛](https://github.com/Anita-Liberatore/andumabus/issues) 
+[Esplora l'App Live 🚀](https://andumabus.com/#/) • [Segnala un Bug 🐛]([https://github.com/Anita-Liberatore/andumabus/issues](https://github.com/Anita-Liberatore/turin-transit-live/issues)) 
 </div>
 
 ---
