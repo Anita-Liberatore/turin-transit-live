@@ -4,9 +4,7 @@
 ### *“Anduma? Sì, ma in bus!”* — La piattaforma intelligente per muoversi in città senza stress.
 
 [![Status](https://img.shields.io/badge/Status-Live-success?style=for-the-badge&logo=vercel)]()
-[![Tech](https://img.shields.io/badge/Made%20with-Vue%20/%20React-blue?style=for-the-badge&logo=javascript)]()
-
-[Esplora l'App Live 🚀](https://andumabus.com/#/) • [Segnala un Bug 🐛]([https://github.com/Anita-Liberatore/andumabus/issues](https://github.com/Anita-Liberatore/turin-transit-live/issues)) 
+[Esplora l'App Live 🚀](https://andumabus.com/#/) • [Segnala un Bug 🐛](https://github.com/Anita-Liberatore/andumabus/issues) 
 </div>
 
 ---
@@ -21,17 +19,12 @@ Quante volte hai perso il bus per 30 secondi? O sei rimasto ad aspettare alla fe
 
 ## 🚀 Funzionalità Principali (Features)
 
-- 📍 **Mappa Interattiva Real-Time:** Traccia la posizione esatta dei bus sulla mappa con aggiornamenti al secondo.
-- 🕒 **Orari Generativi & Predittivi:** Calcolo dei tempi di arrivo stimati (ETA) basato sul traffico attuale, non solo sugli orari teorici.
-- 📱 **Mobile-First & PWA:** Progettata per essere usata al volo, con una mano sola, mentre corri verso la fermata. Funziona anche offline!
-- 🔔 **Notifiche Push Intelligenti:** Svegliati e ricevi un avviso solo se la *tua* linea preferita ha subito ritardi o variazioni.
-- 🌿 **Green Impact Tracker:** Visualizza quanta CO₂ hai risparmiato preferendo il bus all'auto privata.
-
+- 📍 **Mappa Interattiva Real-Time:** Traccia la posizione esatta dei bus sulla mappa con aggiornamenti in tempo reale.
+- 🕒 **Orari Generativi & Predittivi:** Orari in tempo reale, usando le API di GTT Torino
 ---
 
-## 🛠️ Tech Stack (Il Motore del Bus)
-
-L'applicazione è stata sviluppata utilizzando tecnologie moderne per garantire performance fulminee e consumi di dati ridotti al minimo:
+## 🛠️ Tech Stack
+L'applicazione è stata sviluppata utilizzando tecnologie moderne:
 
 | Frontend | Backend / API | Mappe & Geolocalizzazione |
 | :--- | :--- | :--- |
