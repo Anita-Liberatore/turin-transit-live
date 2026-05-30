@@ -28,4 +28,4 @@ L'applicazione è stata sviluppata utilizzando tecnologie moderne:
 
 | Frontend | Backend / API | Mappe & Geolocalizzazione |
 | :--- | :--- | :--- |
-| **Framework:** Vue.js | **Map Engine:** Mapbox / Leaflet |
+| **Framework:** Vue.js |API GTT Torino | **Map Engine:** Mapbox / Leaflet |
