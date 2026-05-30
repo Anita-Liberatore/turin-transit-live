@@ -10,10 +10,18 @@ export async function fetchStopLines(stopId) {
 }
 
 function normalizeStopLine(raw) {
+  const realtimeTimes = raw.PassaggiRT ?? []
+  const hasRealtime   = realtimeTimes.length > 0
+
   return {
     line:          raw.Linea,
     direction:     raw.Direzione,
-    realtimeTimes: raw.PassaggiRT ?? [],
+    times:         hasRealtime ? realtimeTimes : parseScheduled(raw.PassaggiPR ?? []),
+    isScheduled:   !hasRealtime,
     hasAlert:      !!raw.Avviso,
   }
+}
+
+function parseScheduled(times) {
+  return times.map(t => t.replace(/[^\d:]/g, ''))
 }

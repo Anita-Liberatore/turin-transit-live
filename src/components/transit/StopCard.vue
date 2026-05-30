@@ -37,10 +37,12 @@
           </div>
 
           <div class="stop-line__times">
+            <span v-if="line.isScheduled" class="stop-line__scheduled-label">Programmato</span>
             <span
-              v-for="time in line.realtimeTimes"
+              v-for="time in line.times"
               :key="time"
-              class="time-chip time-chip--live"
+              class="time-chip"
+              :class="line.isScheduled ? 'time-chip--scheduled' : 'time-chip--live'"
             >
               {{ time }}
             </span>
@@ -243,7 +245,17 @@ defineEmits(['refresh', 'close'])
 .stop-line__times {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
+}
+
+.stop-line__scheduled-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: var(--space-1);
 }
 
 .stop-line__alert-note {
@@ -277,6 +289,12 @@ defineEmits(['refresh', 'close'])
   background: rgba(46, 204, 113, 0.15);
   color: var(--color-realtime);
   border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.time-chip--scheduled {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
 }
 
 </style>
