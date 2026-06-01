@@ -6,9 +6,12 @@
         <div class="stop-card__icon">
           <AppIcon name="stop" size="sm" />
         </div>
-        <div>
-          <p class="stop-card__label">Fermata</p>
-          <strong class="stop-card__id">{{ stopId }}</strong>
+        <div class="stop-card__meta">
+          <div class="stop-card__meta-top">
+            <span class="stop-card__id">{{ stopId }}</span>
+            <span v-if="stopName" class="stop-card__name">{{ stopName }}</span>
+          </div>
+          <span v-if="stopAddress" class="stop-card__address">{{ stopAddress }}</span>
         </div>
       </div>
       <div class="stop-card__actions">
@@ -72,10 +75,12 @@ import { lineColor } from '@/utils/lineColors'
 import { titleCase } from '@/utils/formatText'
 
 defineProps({
-  stopId:  { type: String,  required: true },
-  lines:   { type: Array,   default: () => [] },
-  loading: { type: Boolean, default: false },
-  error:   { type: String,  default: null },
+  stopId:      { type: String,  required: true },
+  stopName:    { type: String,  default: null },
+  stopAddress: { type: String,  default: null },
+  lines:       { type: Array,   default: () => [] },
+  loading:     { type: Boolean, default: false },
+  error:       { type: String,  default: null },
 })
 
 defineEmits(['refresh', 'close'])
@@ -117,22 +122,44 @@ defineEmits(['refresh', 'close'])
   flex-shrink: 0;
 }
 
-.stop-card__label {
-  font-size: 10px;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  margin-bottom: 2px;
+.stop-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stop-card__meta-top {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
 }
 
 .stop-card__id {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-light);
   font-family: var(--font-family-mono);
   letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
+
+.stop-card__name {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stop-card__address {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stop-card__actions {

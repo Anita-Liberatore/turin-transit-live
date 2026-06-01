@@ -56,7 +56,7 @@
 
       <!-- Hint: nessuna linea cercata -->
       <Transition name="fade-overlay">
-        <div v-if="!activeFilter && !connecting" class="vm-overlay vm-overlay--hint">
+        <div v-if="!activeFilter" class="vm-overlay vm-overlay--hint">
           <div class="vm-overlay__box">
             <div class="vm-overlay__icon">🚌</div>
             <p class="vm-overlay__msg">Cerca una linea GTT</p>
@@ -95,9 +95,10 @@ const filteredVehicles = computed(() =>
 function onSearch() {
   const line = lineFilter.value.trim()
   if (!line) return
+  if (!connected.value && !connecting.value) connect()
   activeFilter.value = line
-  lineFilter.value = ''
-  fittedOnce = false
+  lineFilter.value   = ''
+  fittedOnce         = false
 }
 
 function makeBusIcon(vehicle) {
@@ -194,9 +195,6 @@ onMounted(async () => {
   ).addTo(map)
 
   map.invalidateSize()
-
-  // Auto-connessione al broker MQTT
-  connect()
 })
 
 onUnmounted(() => {

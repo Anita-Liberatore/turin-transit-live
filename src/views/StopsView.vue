@@ -33,6 +33,8 @@
       <StopCard
         v-if="activeStopId"
         :stop-id="activeStopId"
+        :stop-name="stopInfo?.name ?? null"
+        :stop-address="stopInfo?.address ?? null"
         :lines="lines"
         :loading="loading"
         :error="error"
@@ -60,13 +62,15 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import StopCard from '@/components/transit/StopCard.vue'
 import { useStopDepartures } from '@/composables/useStopDepartures'
+import { useStopInfo }       from '@/composables/useStopInfo'
 
 const route = useRoute()
 
-const inputStop   = ref('')
+const inputStop    = ref('')
 const activeStopId = ref('')
 
 const { lines, loading, error, refresh } = useStopDepartures(activeStopId)
+const { info: stopInfo }                 = useStopInfo(activeStopId)
 
 function search() {
   const id = inputStop.value.trim()
