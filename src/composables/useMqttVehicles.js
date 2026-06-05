@@ -73,8 +73,17 @@ export function useMqttVehicles() {
           if (!flatLat || !flatLng || !isInTorino(flatLat, flatLng)) return
 
           const id = tripId || topic
+          const previous = vehicles.value[id] || {}
+          const trail = [...(previous.trail || [])]
+          const latestPoint = [flatLat, flatLng]
+
+          if (!trail.length || trail[trail.length - 1][0] !== flatLat || trail[trail.length - 1][1] !== flatLng) {
+            trail.push(latestPoint)
+            if (trail.length > 24) trail.shift()
+          }
 
           batch[id] = {
+            ...previous,
             id,
             line:      parseTopic(topic),
             lat:       flatLat,
@@ -83,6 +92,7 @@ export function useMqttVehicles() {
             speed:     parseFloat(speed)   || 0,
             direction: direction || '',
             nextStop:  nextStop ? String(nextStop).replace('gtt:', '') : '',
+            trail,
           }
 
           scheduleBatch()

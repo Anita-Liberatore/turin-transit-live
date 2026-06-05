@@ -7,6 +7,14 @@ const STOPWORDS = new Set([
   'ci','mi','si','ti',
 ])
 
+const STREET_ABBREVIATIONS = [
+  [/\bV\.\s*P\.\s*/gi, 'Via Palazzo '],
+  [/\bV\.\s*/gi, 'Via '],
+  [/\bP\.\s*/gi, 'Piazza '],
+  [/\bC\.so\s*/gi, 'Corso '],
+  [/\bC\.le\s*/gi, 'Corso '],
+]
+
 function isRomanNumeral(word) {
   if (word.length < 1)        return false
   if (STOPWORDS.has(word))    return false
@@ -16,11 +24,50 @@ function isRomanNumeral(word) {
 
 export function titleCase(str) {
   if (!str) return ''
-  return str
+  let isFirstWord = true
+
+  return normalizeEscapedText(str)
     .toLowerCase()
     .replace(/\b[a-z]+\b/g, word =>
-      isRomanNumeral(word)
-        ? word.toUpperCase()
-        : word.charAt(0).toUpperCase() + word.slice(1)
+    {
+      if (isRomanNumeral(word)) {
+        isFirstWord = false
+        return word.toUpperCase()
+      }
+
+      const shouldKeepLowercase = !isFirstWord && STOPWORDS.has(word)
+      isFirstWord = false
+
+      return shouldKeepLowercase
+        ? word
+        : capitalizeWord(word)
+    }
     )
+}
+
+export function formatDirection(str) {
+  if (!str) return ''
+
+  const expanded = STREET_ABBREVIATIONS.reduce(
+    (value, [pattern, replacement]) => value.replace(pattern, replacement),
+    normalizeEscapedText(str)
+  )
+
+  return titleCase(expanded)
+}
+
+function normalizeEscapedText(str) {
+  return String(str)
+    .replace(/\\+'/g, "'")
+    .replace(/\\+/g, '')
+    .replace(/&#039;|&apos;/gi, "'")
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\bCitta'/gi, 'Città')
+    .replace(/\s*\/\s*/g, ' / ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function capitalizeWord(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1)
 }

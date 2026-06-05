@@ -2,16 +2,18 @@
   <div class="stop-card">
 
     <div class="stop-card__header">
-      <div class="stop-card__title">
-        <div class="stop-card__icon">
-          <AppIcon name="stop" size="sm" />
+      <div class="stop-card__hero">
+        <div class="stop-card__badge-wrap">
+          <span class="stop-card__badge-label">Fermata</span>
+          <strong class="stop-card__id">{{ stopId }}</strong>
         </div>
         <div class="stop-card__meta">
-          <div class="stop-card__meta-top">
-            <span class="stop-card__id">{{ stopId }}</span>
-            <span v-if="stopName" class="stop-card__name">{{ stopName }}</span>
-          </div>
-          <span v-if="stopAddress" class="stop-card__address">{{ stopAddress }}</span>
+          <strong v-if="stopName" class="stop-card__name">{{ stopName }}</strong>
+          <span v-else class="stop-card__name stop-card__name--muted">Fermata selezionata</span>
+          <span v-if="stopAddress" class="stop-card__address">
+            <AppIcon name="location" size="xs" />
+            {{ stopAddress }}
+          </span>
         </div>
       </div>
       <div class="stop-card__actions">
@@ -25,9 +27,28 @@
     </div>
 
     <div class="stop-card__body">
-      <LoadingSpinner v-if="loading && !lines.length" size="sm" label="Caricamento…" />
-      <ErrorAlert v-else-if="error" :message="error" @retry="$emit('refresh')" />
-      <p v-else-if="!lines.length" class="stop-card__empty">Nessuna partenza disponibile</p>
+      <LoadingSpinner v-if="loading && !lines.length" size="sm" label="Caricamento..." />
+      <div v-else-if="error" class="stop-card__state stop-card__state--error">
+        <div class="stop-card__state-icon">
+          <AppIcon name="signal" size="lg" />
+        </div>
+        <div class="stop-card__state-copy">
+          <strong>Qualcosa non torna</strong>
+          <p>{{ error }}</p>
+        </div>
+        <button class="stop-card__state-action" type="button" @click="$emit('refresh')">
+          Riprova
+        </button>
+      </div>
+      <div v-else-if="!lines.length" class="stop-card__state">
+        <div class="stop-card__state-icon">
+          <AppIcon name="clock" size="lg" />
+        </div>
+        <div class="stop-card__state-copy">
+          <strong>Nessuna partenza</strong>
+          <p>Non risultano passaggi disponibili per questa fermata.</p>
+        </div>
+      </div>
 
       <div v-else class="stop-card__lines">
         <div v-for="line in lines" :key="line.line" class="stop-line">
@@ -35,7 +56,7 @@
             <span class="stop-line__badge" :style="{ background: lineColor(line.line) }">
               {{ line.line }}
             </span>
-            <span class="stop-line__direction">{{ titleCase(line.direction) }}</span>
+            <span class="stop-line__direction">{{ formatDirection(line.direction) }}</span>
             <span v-if="line.hasAlert" class="stop-line__alert" title="Avviso attivo">!</span>
           </div>
 
@@ -58,7 +79,7 @@
             rel="noopener"
             class="stop-line__alert-note"
           >
-            Potrebbero esserci variazioni di percorso — verifica sul sito GTT
+            Potrebbero esserci variazioni di percorso - verifica sul sito GTT
           </a>
         </div>
       </div>
@@ -70,9 +91,8 @@
 <script setup>
 import AppIcon from '@/components/ui/AppIcon.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
-import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 import { lineColor } from '@/utils/lineColors'
-import { titleCase } from '@/utils/formatText'
+import { formatDirection } from '@/utils/formatText'
 
 defineProps({
   stopId:      { type: String,  required: true },
@@ -88,78 +108,94 @@ defineEmits(['refresh', 'close'])
 
 <style scoped>
 .stop-card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.024), transparent 140px),
+    var(--color-bg-card);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-xl);
   overflow: hidden;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.24);
   animation: fadeInUp var(--transition-base) ease both;
 }
 
 .stop-card__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
+  padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
-.stop-card__title {
+.stop-card__hero {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
+  min-width: 0;
+  flex: 1;
 }
 
-.stop-card__icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  background: var(--color-primary-alpha);
-  color: var(--color-primary-light);
+.stop-card__badge-wrap {
+  min-width: 64px;
+  padding: 0.7rem var(--space-2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, #c83a31, #9f2c25);
+  color: #fff;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   flex-shrink: 0;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.stop-card__badge-label {
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: 0.8;
 }
 
 .stop-card__meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-1);
   min-width: 0;
-}
-
-.stop-card__meta-top {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+  padding-top: 1px;
 }
 
 .stop-card__id {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-extrabold);
-  color: var(--color-primary-light);
   font-family: var(--font-family-mono);
-  letter-spacing: -0.01em;
-  flex-shrink: 0;
+  letter-spacing: 0;
+  line-height: 1;
 }
 
 .stop-card__name {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: clamp(1.08rem, 4.5vw, 1.42rem);
+  font-weight: var(--font-weight-extrabold);
+  color: #f36f64;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.stop-card__name--muted {
+  color: var(--color-text-secondary);
 }
 
 .stop-card__address {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  line-height: 1.35;
 }
 
 .stop-card__actions {
@@ -172,8 +208,8 @@ defineEmits(['refresh', 'close'])
   width: 32px;
   height: 32px;
   border-radius: var(--radius-md);
-  border: none;
-  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255,255,255,0.035);
   color: var(--color-text-muted);
   cursor: pointer;
   display: flex;
@@ -184,6 +220,7 @@ defineEmits(['refresh', 'close'])
 
 .stop-card__btn:hover:not(:disabled) {
   background: var(--color-bg-elevated);
+  border-color: var(--color-border);
   color: var(--color-text-primary);
 }
 
@@ -193,75 +230,140 @@ defineEmits(['refresh', 'close'])
 }
 
 .stop-card__body {
-  padding: var(--space-2) 0;
+  padding: var(--space-2);
   min-height: 60px;
-}
-
-.stop-card__empty {
-  padding: var(--space-8);
-  text-align: center;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
 }
 
 .stop-card__lines {
   display: flex;
   flex-direction: column;
-}
-
-/* Singola linea */
-.stop-line {
-  padding: var(--space-3) var(--space-5);
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
   gap: var(--space-2);
 }
 
-.stop-line:last-child {
-  border-bottom: none;
+.stop-card__state {
+  margin: var(--space-2);
+  padding: var(--space-6) var(--space-5);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.055), transparent 45%),
+    rgba(255,255,255,0.025);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.stop-card__state--error {
+  border-color: rgba(231, 76, 60, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(231, 76, 60, 0.12), transparent 45%),
+    rgba(231, 76, 60, 0.045);
+}
+
+.stop-card__state-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-2xl);
+  background: rgba(255,255,255,0.06);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stop-card__state--error .stop-card__state-icon {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.stop-card__state-copy {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 360px;
+}
+
+.stop-card__state-copy strong {
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+}
+
+.stop-card__state-copy p {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.stop-card__state-action {
+  min-height: 38px;
+  border: 1px solid rgba(231, 76, 60, 0.28);
+  border-radius: var(--radius-full);
+  background: rgba(231, 76, 60, 0.08);
+  color: var(--color-danger);
+  padding: 0 var(--space-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.stop-card__state-action:hover {
+  transform: translateY(-1px);
+  background: rgba(231, 76, 60, 0.14);
+  border-color: rgba(231, 76, 60, 0.42);
+}
+
+.stop-line {
+  padding: var(--space-4);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-xl);
+  background: rgba(255,255,255,0.025);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .stop-line__head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-2);
 }
 
 .stop-line__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  height: 26px;
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-sm);
+  min-width: 42px;
+  height: 30px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
   color: #fff;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-extrabold);
   font-family: var(--font-family-mono);
   flex-shrink: 0;
-  letter-spacing: 0.03em;
+  letter-spacing: 0;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.16);
 }
 
 .stop-line__direction {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .stop-line__alert {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--color-warning);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--font-weight-extrabold);
   display: flex;
   align-items: center;
@@ -290,7 +392,9 @@ defineEmits(['refresh', 'close'])
   font-size: var(--font-size-xs);
   color: var(--color-warning);
   text-decoration: none;
-  padding: var(--space-1) 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-light);
   transition: opacity var(--transition-fast);
 }
 
@@ -299,17 +403,18 @@ defineEmits(['refresh', 'close'])
   text-decoration: underline;
 }
 
-/* Chip orario */
 .time-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
+  min-width: 54px;
+  min-height: 32px;
+  padding: 5px 10px;
+  border-radius: var(--radius-md);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-extrabold);
   font-family: var(--font-family-mono);
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 
 .time-chip--live {
@@ -324,4 +429,18 @@ defineEmits(['refresh', 'close'])
   border: 1px solid var(--color-border);
 }
 
+@media (min-width: 600px) {
+  .stop-card__header {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .stop-card__body {
+    padding: var(--space-3);
+  }
+
+  .stop-line {
+    padding: var(--space-4) var(--space-5);
+  }
+}
 </style>
+

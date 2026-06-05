@@ -24,6 +24,7 @@ export function useStopDepartures(stopId) {
 
   function startPolling() {
     clearInterval(timer)
+    lines.value = []
     load()
     timer = setInterval(load, REFRESH_INTERVAL_MS)
   }

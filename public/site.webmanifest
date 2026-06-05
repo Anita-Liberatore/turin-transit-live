@@ -1,0 +1,19 @@
+{
+  "name": "Anduma Bus - GTT Torino Live",
+  "short_name": "Anduma Bus",
+  "description": "Orari GTT, fermate e posizione live dei mezzi pubblici a Torino.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#151526",
+  "theme_color": "#151526",
+  "lang": "it-IT",
+  "icons": [
+    {
+      "src": "/bus-icon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
