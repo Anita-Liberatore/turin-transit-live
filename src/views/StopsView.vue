@@ -13,8 +13,7 @@
       <div class="stops-view__search">
         <BaseInput
           v-model="inputStop"
-          inputmode="numeric"
-          pattern="[0-9]*"
+          inputmode="search"
           enterkeyhint="search"
           autocomplete="off"
           placeholder="Numero o nome fermata"
