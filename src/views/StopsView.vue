@@ -29,7 +29,7 @@
           aria-label="Cerca fermata"
           @click="searchOnDemand"
         >
-          <AppIcon name="arrow_right" size="md" />
+          <span>Cerca</span>
         </button>
       </div>
 
@@ -248,37 +248,85 @@ watch(
 
 .stops-view__search {
   display: flex;
-  gap: var(--space-3);
+  align-items: stretch;
+  gap: var(--space-2);
 }
 
-.stops-view__input { flex: 1; }
+.stops-view__input {
+  flex: 1;
+}
+
+.stops-view__input:deep(.input) {
+  min-height: 48px;
+  border-color: rgba(255, 255, 255, 0.11);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    rgba(30, 30, 56, 0.86);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.stops-view__input:deep(.input--focused) {
+  border-color: rgba(230, 51, 41, 0.6);
+  box-shadow:
+    0 0 0 3px rgba(230, 51, 41, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.stops-view__input:deep(.input__field) {
+  font-size: var(--font-size-md);
+  padding: 12px 0;
+}
+
+.stops-view__input:deep(.input__icon) {
+  color: #df6961;
+}
 
 .stops-view__search-btn {
-  width: 44px;
-  height: 44px;
+  min-width: 78px;
+  height: 48px;
+  padding: 0 var(--space-4);
   flex-shrink: 0;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-primary);
-  background: var(--color-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(230, 51, 41, 0.38);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.065), transparent),
+    rgba(184, 37, 28, 0.78);
   color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   transition: all var(--transition-fast);
-  box-shadow: 0 2px 8px rgba(230, 51, 41, 0.3);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .stops-view__search-btn:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-  box-shadow: 0 4px 14px rgba(230, 51, 41, 0.45);
+  border-color: rgba(230, 51, 41, 0.58);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
+    var(--color-primary-dark);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
   transform: translateY(-1px);
 }
 
 .stops-view__search-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+@media (max-width: 420px) {
+  .stops-view__search {
+    gap: var(--space-2);
+  }
+
+  .stops-view__search-btn {
+    min-width: 68px;
+    padding: 0 var(--space-3);
+  }
 }
 
 .stops-view__empty {

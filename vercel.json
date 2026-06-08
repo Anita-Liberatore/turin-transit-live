@@ -40,6 +40,10 @@
     {
       "source": "/gtt-proxy/:path*",
       "destination": "https://www.gtt.to.it/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
     }
   ]
 }

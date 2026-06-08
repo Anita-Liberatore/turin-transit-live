@@ -85,7 +85,6 @@
           </BaseInput>
           <BaseButton @click="goToStop" :disabled="!quickStop.trim()">
             Cerca
-            <template #icon-right><AppIcon name="arrow_right" size="sm" /></template>
           </BaseButton>
         </div>
       </div>
@@ -318,10 +317,55 @@ a.feature-card:hover .feature-card__arrow {
 
 .quick__form {
   display: flex;
-  gap: var(--space-3);
+  align-items: stretch;
+  gap: var(--space-2);
 }
 
-.quick__form > :first-child { flex: 1; }
+.quick__form > :first-child {
+  flex: 1;
+}
+
+.quick__form > :first-child:deep(.input) {
+  min-height: 48px;
+  border-color: rgba(255, 255, 255, 0.11);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    rgba(30, 30, 56, 0.86);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.quick__form > :first-child:deep(.input--focused) {
+  border-color: rgba(230, 51, 41, 0.6);
+  box-shadow:
+    0 0 0 3px rgba(230, 51, 41, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.quick__form > :first-child:deep(.input__field) {
+  font-size: var(--font-size-md);
+  padding: 12px 0;
+}
+
+.quick__form > :first-child:deep(.input__icon) {
+  color: #df6961;
+}
+
+.quick__form > :last-child {
+  min-width: 84px;
+  min-height: 48px;
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 420px) {
+  .quick__form {
+    flex-direction: column;
+  }
+
+  .quick__form > :last-child {
+    width: 100%;
+  }
+}
 
 
 /* ── Tablet ── */

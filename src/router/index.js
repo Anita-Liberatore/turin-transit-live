@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
@@ -21,8 +21,13 @@ const routes = [
   }
 ]
 
+if (window.location.hash.startsWith('#/')) {
+  const cleanPath = window.location.hash.slice(1)
+  window.history.replaceState(null, '', cleanPath)
+}
+
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 
