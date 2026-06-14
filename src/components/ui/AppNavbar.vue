@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar">
+  <nav class="navbar" :class="{ 'navbar--menu-open': menuOpen }">
     <div class="navbar__inner">
 
       <RouterLink to="/" class="navbar__brand">
@@ -105,7 +105,13 @@ onUnmounted(() => {
   isolation: isolate;
 }
 
+.navbar--menu-open {
+  z-index: 10000;
+}
+
 .navbar__inner {
+  position: relative;
+  z-index: 3;
   max-width: var(--container-max);
   margin: 0 auto;
   padding: 0 var(--space-4);
@@ -263,6 +269,7 @@ onUnmounted(() => {
   top: calc(100% + var(--space-2));
   left: var(--space-3);
   right: var(--space-3);
+  z-index: 2;
   display: grid;
   gap: var(--space-2);
   padding: var(--space-3);
@@ -329,4 +336,5 @@ onUnmounted(() => {
     display: none;
   }
 }
+
 </style>
