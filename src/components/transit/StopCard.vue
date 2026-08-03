@@ -53,7 +53,7 @@
       <div v-else class="stop-card__lines">
         <div v-for="line in lines" :key="line.line" class="stop-line">
           <div class="stop-line__head">
-            <span class="stop-line__badge" :style="{ background: lineColor(line.line) }">
+            <span class="stop-line__badge" :style="{ background: lineColor(line.line), '--badge-glow': lineColor(line.line) + '99' }">
               {{ line.line }}
             </span>
             <span class="stop-line__direction">{{ formatDirection(line.direction) }}</span>
@@ -62,6 +62,7 @@
 
           <div class="stop-line__times">
             <span v-if="line.isScheduled" class="stop-line__scheduled-label">Programmato</span>
+            <span v-else class="stop-line__live-dot"></span>
             <span
               v-for="time in line.times"
               :key="time"
@@ -345,7 +346,8 @@ defineEmits(['refresh', 'close'])
   font-family: var(--font-family-mono);
   flex-shrink: 0;
   letter-spacing: 0;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.16);
+  box-shadow: 0 4px 14px color-mix(in srgb, currentColor 0%, transparent), 0 2px 6px rgba(0,0,0,0.25);
+  filter: drop-shadow(0 3px 8px var(--badge-glow, rgba(0,0,0,0.3)));
 }
 
 .stop-line__direction {
@@ -376,6 +378,15 @@ defineEmits(['refresh', 'close'])
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+}
+
+.stop-line__live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-realtime);
+  flex-shrink: 0;
+  animation: glow-pulse 2s ease-in-out infinite;
 }
 
 .stop-line__scheduled-label {

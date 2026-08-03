@@ -26,7 +26,9 @@ export function useStopDepartures(stopId) {
     clearInterval(timer)
     lines.value = []
     load()
-    timer = setInterval(load, REFRESH_INTERVAL_MS)
+    timer = setInterval(() => {
+      if (!error.value) load()
+    }, REFRESH_INTERVAL_MS)
   }
 
   watch(stopId, val => {

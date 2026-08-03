@@ -1,7 +1,11 @@
 <template>
   <div class="app">
     <AppNavbar />
-    <RouterView />
+    <RouterView v-slot="{ Component }">
+      <Transition name="page" mode="out-in">
+        <component :is="Component" :key="$route.name" />
+      </Transition>
+    </RouterView>
     <footer class="app-footer">
       <div class="app-footer__inner">
         <div class="app-footer__credits">
@@ -24,6 +28,21 @@ import AppNavbar from '@/components/ui/AppNavbar.vue'
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 .app-footer {

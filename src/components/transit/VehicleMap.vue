@@ -81,7 +81,11 @@
       <Transition name="slide-up">
         <aside v-if="selectedVehicle" class="vehicle-map__detail-panel">
           <div class="vehicle-map__detail-stack">
-            <section v-if="selectedVehicle" class="vehicle-map__vehicle-card">
+            <section
+              v-if="selectedVehicle"
+              class="vehicle-map__vehicle-card"
+              :style="{ '--line-color': lineColor(selectedVehicle.line) }"
+            >
               <div class="vehicle-map__vehicle-top">
                 <div class="vehicle-map__vehicle-heading">
                   <span class="vehicle-map__vehicle-kicker">Mezzo in servizio</span>
@@ -292,7 +296,7 @@ function goToStop(id) {
 
 function makeBusIcon(vehicle) {
   const heading    = vehicle.heading || 0
-  const faded      = !!(lineFilter.value && vehicle.line !== lineFilter.value)
+  const faded      = !!(activeFilter.value && vehicle.line !== activeFilter.value)
   const color      = faded ? '#6b7280' : lineColor(vehicle.line)
   const opacity    = faded ? 0.4 : 1
   const counterRot = -heading
@@ -551,6 +555,13 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: var(--space-4);
   flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(15, 15, 26, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
 }
 
 .vehicle-map__search {
@@ -657,9 +668,11 @@ onUnmounted(() => {
 
 .vehicle-map__vehicle-card {
   background: rgba(26, 26, 46, 0.96);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 3px solid var(--line-color, var(--color-primary));
   border-radius: var(--radius-xl);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(255,255,255,0.04);
+  overflow: hidden;
 }
 
 .vehicle-map__vehicle-card {
@@ -691,7 +704,7 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   margin-top: var(--space-1);
-  color: var(--color-text-primary);
+  color: var(--line-color, var(--color-text-primary));
   font-size: clamp(1.2rem, 4.8vw, 1.55rem);
   font-weight: var(--font-weight-extrabold);
   line-height: 1;
@@ -703,8 +716,8 @@ onUnmounted(() => {
   height: 0.55rem;
   margin-right: var(--space-2);
   border-radius: var(--radius-full);
-  background: var(--color-primary);
-  box-shadow: 0 0 0 0.28rem rgba(230, 51, 41, 0.12);
+  background: var(--line-color, var(--color-primary));
+  box-shadow: 0 0 0 0.28rem color-mix(in srgb, var(--line-color, var(--color-primary)) 20%, transparent);
 }
 
 .vehicle-map__vehicle-close {

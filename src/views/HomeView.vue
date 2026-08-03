@@ -119,7 +119,7 @@ function goToStop() {
 /* ── Hero ── */
 .hero {
   position: relative;
-  padding: var(--space-12) var(--space-4) var(--space-10);
+  padding: var(--space-12) 0 var(--space-10);
   overflow: hidden;
   min-height: 380px;
   display: flex;
@@ -130,8 +130,9 @@ function goToStop() {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 60% at 50% -10%, rgba(230, 51, 41, 0.18) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 30% at 85% 90%, rgba(41, 128, 185, 0.08) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 70% at 50% -5%, rgba(230, 51, 41, 0.32) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 15% 110%, rgba(230, 51, 41, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 85% 90%, rgba(41, 128, 185, 0.1) 0%, transparent 60%);
   pointer-events: none;
 }
 
@@ -140,6 +141,7 @@ function goToStop() {
   width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;
+  padding: 0 var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
@@ -371,14 +373,18 @@ a.feature-card:hover .feature-card__arrow {
 /* ── Tablet ── */
 @media (min-width: 600px) {
   .hero {
-    padding: var(--space-16) var(--space-8) var(--space-12);
+    padding: var(--space-16) 0 var(--space-12);
     min-height: 460px;
+  }
+
+  .hero__content {
+    padding: 0 var(--space-8);
   }
 
   .features {
     padding: var(--space-8) var(--space-8);
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: var(--space-4);
   }
 
@@ -404,7 +410,6 @@ a.feature-card:hover .feature-card__arrow {
 /* ── Desktop ── */
 @media (min-width: 1024px) {
   .features {
-    grid-template-columns: 1fr 1fr 1fr;
     padding: var(--space-10) var(--space-8);
   }
 }

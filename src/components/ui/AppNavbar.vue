@@ -7,7 +7,7 @@
           <AppIcon name="bus" size="md" />
         </div>
         <div class="navbar__brand-text">
-          <span class="navbar__brand-name">GTT Torino</span>
+          <span class="navbar__brand-name">Anduma Bus</span>
           <span class="navbar__brand-sub">Live</span>
         </div>
       </RouterLink>

@@ -448,12 +448,6 @@ watch(
   white-space: nowrap;
 }
 
-.stops-view__suggestion-subtitle {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  line-height: 1.4;
-}
-
 .stops-view__search-error,
 .stops-view__search-loading,
 .stops-view__search-empty {
