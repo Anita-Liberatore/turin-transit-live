@@ -98,7 +98,7 @@ onUnmounted(() => {
   top: 0;
   z-index: var(--z-sticky);
   height: var(--nav-height);
-  background: rgba(15, 15, 26, 0.95);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--color-border);
@@ -139,7 +139,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(230, 51, 41, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 85, 164, 0.5);
 }
 
 .navbar__brand-text {
@@ -275,7 +275,7 @@ onUnmounted(() => {
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  background: rgba(26, 26, 46, 0.98);
+  background: rgba(255, 255, 255, 0.98);
   box-shadow: var(--shadow-lg);
 }
 

@@ -109,13 +109,11 @@ defineEmits(['refresh', 'close'])
 
 <style scoped>
 .stop-card {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.024), transparent 140px),
-    var(--color-bg-card);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 8px 28px rgba(0, 41, 107, 0.1);
   animation: fadeInUp var(--transition-base) ease both;
 }
 
@@ -139,9 +137,9 @@ defineEmits(['refresh', 'close'])
 .stop-card__badge-wrap {
   min-width: 64px;
   padding: 0.7rem var(--space-2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
-  background: linear-gradient(145deg, #c83a31, #9f2c25);
+  background: linear-gradient(145deg, var(--gtt-azure), var(--gtt-imperial));
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -149,7 +147,7 @@ defineEmits(['refresh', 'close'])
   justify-content: center;
   gap: 2px;
   flex-shrink: 0;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 8px 18px rgba(0, 41, 107, 0.22);
 }
 
 .stop-card__badge-label {
@@ -180,7 +178,7 @@ defineEmits(['refresh', 'close'])
 .stop-card__name {
   font-size: clamp(1.08rem, 4.5vw, 1.42rem);
   font-weight: var(--font-weight-extrabold);
-  color: #f36f64;
+  color: var(--color-primary-light);
   line-height: 1.15;
   letter-spacing: 0;
 }
@@ -209,8 +207,8 @@ defineEmits(['refresh', 'close'])
   width: 32px;
   height: 32px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--color-overlay-border);
+  background: var(--color-overlay-subtle);
   color: var(--color-text-muted);
   cursor: pointer;
   display: flex;
@@ -221,8 +219,8 @@ defineEmits(['refresh', 'close'])
 
 .stop-card__btn:hover:not(:disabled) {
   background: var(--color-bg-elevated);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
+  border-color: var(--color-border-active);
+  color: var(--color-primary);
 }
 
 .stop-card__btn--close:hover {
@@ -244,11 +242,11 @@ defineEmits(['refresh', 'close'])
 .stop-card__state {
   margin: var(--space-2);
   padding: var(--space-6) var(--space-5);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--color-overlay-border);
   border-radius: var(--radius-xl);
   background:
-    radial-gradient(circle at top left, rgba(255,255,255,0.055), transparent 45%),
-    rgba(255,255,255,0.025);
+    radial-gradient(circle at top left, var(--color-overlay-light), transparent 45%),
+    var(--color-overlay-subtle);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -267,8 +265,8 @@ defineEmits(['refresh', 'close'])
   width: 56px;
   height: 56px;
   border-radius: var(--radius-2xl);
-  background: rgba(255,255,255,0.06);
-  color: var(--color-text-secondary);
+  background: var(--color-overlay-light);
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -317,9 +315,9 @@ defineEmits(['refresh', 'close'])
 
 .stop-line {
   padding: var(--space-4);
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid var(--color-overlay-border);
   border-radius: var(--radius-xl);
-  background: rgba(255,255,255,0.025);
+  background: var(--color-overlay-subtle);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);

@@ -1,12 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="GTT Torino Live">
   <defs>
-    <linearGradient id="bg" x1="10" y1="6" x2="54" y2="58" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#f35a50"/>
-      <stop offset="1" stop-color="#b8251c"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00296b"/>
+      <stop offset="1" stop-color="#00509d"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="#151526"/>
-  <rect x="6" y="6" width="52" height="52" rx="14" fill="url(#bg)"/>
-  <path fill="#fff" d="M20 42.5v3.25c0 .7.55 1.25 1.25 1.25h2.5c.7 0 1.25-.55 1.25-1.25V43h14v2.75c0 .7.55 1.25 1.25 1.25h2.5c.7 0 1.25-.55 1.25-1.25V42.5c1.2-.95 2-2.4 2-4V23c0-7-6.25-8-14-8s-14 1-14 8v15.5c0 1.6.8 3.05 2 4Zm4-18.5c0-1.15.85-2 2-2h12c1.15 0 2 .85 2 2v6H24v-6Zm.75 14.5a2.75 2.75 0 1 1 0-5.5 2.75 2.75 0 0 1 0 5.5Zm14.5 0a2.75 2.75 0 1 1 0-5.5 2.75 2.75 0 0 1 0 5.5Z"/>
-  <path fill="#151526" fill-opacity=".18" d="M18 50h28v3H18z"/>
+  <!-- Sfondo arrotondato blu GTT -->
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <!-- Bus bianco -->
+  <path fill="#ffffff" d="M20 42.5v3.25c0 .7.55 1.25 1.25 1.25h2.5c.7 0 1.25-.55 1.25-1.25V43h14v2.75c0 .7.55 1.25 1.25 1.25h2.5c.7 0 1.25-.55 1.25-1.25V42.5c1.2-.95 2-2.4 2-4V23c0-7-6.25-8-14-8s-14 1-14 8v15.5c0 1.6.8 3.05 2 4Zm4-18.5c0-1.15.85-2 2-2h12c1.15 0 2 .85 2 2v6H24v-6Z"/>
+  <!-- Ruote gialle GTT -->
+  <circle cx="24.75" cy="38.75" r="2.75" fill="#fdc500"/>
+  <circle cx="39.25" cy="38.75" r="2.75" fill="#fdc500"/>
+  <!-- Striscia gialla in basso -->
+  <rect x="6" y="52" width="52" height="4" rx="3" fill="#fdc500" opacity="0.85"/>
 </svg>

@@ -56,11 +56,11 @@ defineOptions({ inheritAttrs: false })
 .btn--primary {
   background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(230, 51, 41, 0.35);
+  box-shadow: 0 2px 8px rgba(0, 63, 136, 0.3);
 }
 .btn--primary:hover:not(:disabled) {
   background: var(--color-primary-dark);
-  box-shadow: 0 4px 16px rgba(230, 51, 41, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 41, 107, 0.35);
   transform: translateY(-1px);
 }
 .btn--primary:active:not(:disabled) {

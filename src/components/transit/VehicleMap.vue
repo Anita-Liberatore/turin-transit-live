@@ -552,43 +552,30 @@ onUnmounted(() => {
 .vehicle-map__toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-3);
   flex-wrap: wrap;
-  padding: var(--space-3) var(--space-4);
-  background: rgba(15, 15, 26, 0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
 }
 
 .vehicle-map__search {
   display: flex;
   align-items: stretch;
   gap: var(--space-2);
-  flex: 1;
-  max-width: 420px;
+  width: 340px;
+  max-width: 100%;
 }
 
 .vm-filter-input { flex: 1; }
 
 .vm-filter-input:deep(.input) {
   min-height: 48px;
-  border-color: rgba(255, 255, 255, 0.11);
+  border-color: var(--color-border);
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-    rgba(30, 30, 56, 0.86);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: var(--color-bg-input);
 }
 
 .vm-filter-input:deep(.input--focused) {
-  border-color: rgba(230, 51, 41, 0.6);
-  box-shadow:
-    0 0 0 3px rgba(230, 51, 41, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 80, 157, 0.55);
+  box-shadow: 0 0 0 3px rgba(0, 80, 157, 0.1);
 }
 
 .vm-filter-input:deep(.input__field) {
@@ -597,7 +584,7 @@ onUnmounted(() => {
 }
 
 .vm-filter-input:deep(.input__icon) {
-  color: #df6961;
+  color: var(--color-primary);
 }
 
 .vm-search-btn {
@@ -606,10 +593,8 @@ onUnmounted(() => {
   padding: 0 var(--space-4);
   flex-shrink: 0;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(230, 51, 41, 0.38);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.065), transparent),
-    rgba(184, 37, 28, 0.78);
+  border: none;
+  background: var(--gtt-imperial);
   color: #fff;
   cursor: pointer;
   display: flex;
@@ -618,15 +603,12 @@ onUnmounted(() => {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   transition: all var(--transition-fast);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 12px rgba(0, 41, 107, 0.3);
 }
 
 .vm-search-btn:hover:not(:disabled) {
-  border-color: rgba(230, 51, 41, 0.58);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
-    var(--color-primary-dark);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
+  background: var(--gtt-french);
+  box-shadow: 0 6px 16px rgba(0, 41, 107, 0.4);
   transform: translateY(-1px);
 }
 
@@ -644,10 +626,11 @@ onUnmounted(() => {
 }
 
 .vehicle-map__search-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: flex;
+  align-items: center;
   gap: var(--space-3);
-  width: 100%;
+  flex-wrap: wrap;
+  flex: 1;
 }
 
 .vehicle-map__detail-panel {
@@ -667,11 +650,11 @@ onUnmounted(() => {
 }
 
 .vehicle-map__vehicle-card {
-  background: rgba(26, 26, 46, 0.96);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
   border-top: 3px solid var(--line-color, var(--color-primary));
   border-radius: var(--radius-xl);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(255,255,255,0.04);
+  box-shadow: 0 8px 32px rgba(0, 41, 107, 0.14);
   overflow: hidden;
 }
 
@@ -729,7 +712,7 @@ onUnmounted(() => {
   flex: 0 0 auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-bg-elevated);
   color: var(--color-text-secondary);
   cursor: pointer;
   font-size: var(--font-size-xl);
