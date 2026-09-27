@@ -10,28 +10,14 @@
         <p class="stops-view__sub">Digita numero o nome fermata.</p>
       </header>
 
-      <div class="stops-view__search">
-        <BaseInput
-          v-model="inputStop"
-          inputmode="search"
-          enterkeyhint="search"
-          autocomplete="off"
-          placeholder="Numero o nome fermata"
-          clearable
-          class="stops-view__input"
-          @keyup.enter="searchOnDemand"
-        >
-          <template #icon><AppIcon name="search" size="sm" /></template>
-        </BaseInput>
-        <button
-          class="stops-view__search-btn"
-          :disabled="!inputStop.trim()"
-          aria-label="Cerca fermata"
-          @click="searchOnDemand"
-        >
-          <span>Cerca</span>
-        </button>
-      </div>
+      <SearchBar
+        v-model="inputStop"
+        placeholder="Numero o nome fermata"
+        button-label="Cerca"
+        variant="yellow"
+        :input-attrs="{ inputmode: 'search', enterkeyhint: 'search', autocomplete: 'off' }"
+        @search="searchOnDemand"
+      />
 
       <div class="stops-view__suggestions" v-if="showSuggestions">
         <div class="stops-view__suggestions-header">
@@ -93,8 +79,7 @@
 <script setup>
 import { computed, ref, watch, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import BaseInput from '@/components/ui/BaseInput.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import SearchBar from '@/components/ui/SearchBar.vue'
 import StopCard from '@/components/transit/StopCard.vue'
 import StopCardSkeleton from '@/components/transit/StopCardSkeleton.vue'
 import { useStopDepartures } from '@/composables/useStopDepartures'
@@ -269,80 +254,6 @@ watch(
   position: relative;
 }
 
-/* ── Search ── */
-.stops-view__search {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-2);
-}
-
-.stops-view__input {
-  flex: 1;
-}
-
-.stops-view__input:deep(.input) {
-  min-height: 48px;
-  border-color: var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-input);
-}
-
-.stops-view__input:deep(.input--focused) {
-  border-color: var(--color-border-active);
-  box-shadow: 0 0 0 3px var(--color-primary-alpha);
-}
-
-.stops-view__input:deep(.input__field) {
-  font-size: var(--font-size-md);
-  padding: 12px 0;
-}
-
-.stops-view__input:deep(.input__icon) {
-  color: var(--color-primary);
-}
-
-/* Bottone giallo — coerente col CTA della home */
-.stops-view__search-btn {
-  min-width: 78px;
-  height: 48px;
-  padding: 0 var(--space-4);
-  flex-shrink: 0;
-  border-radius: var(--radius-lg);
-  border: none;
-  background: var(--gtt-yellow);
-  color: var(--gtt-imperial);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  transition: all var(--transition-fast);
-  box-shadow: 0 4px 14px rgba(253, 197, 0, 0.4);
-}
-
-.stops-view__search-btn:hover:not(:disabled) {
-  background: var(--gtt-gold);
-  box-shadow: 0 6px 18px rgba(253, 197, 0, 0.5);
-  transform: translateY(-1px);
-}
-
-.stops-view__search-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-@media (max-width: 420px) {
-  .stops-view__search {
-    gap: var(--space-2);
-  }
-
-  .stops-view__search-btn {
-    min-width: 68px;
-    padding: 0 var(--space-3);
-  }
-}
 
 .stops-view__empty {
   display: flex;

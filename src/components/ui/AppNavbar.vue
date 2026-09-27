@@ -190,6 +190,11 @@ onUnmounted(() => {
   background: var(--color-bg-card);
 }
 
+.navbar__link:active {
+  color: var(--color-primary-light);
+  background: var(--color-primary-alpha);
+}
+
 .navbar__link--active {
   color: var(--color-primary-light);
   background: var(--color-primary-alpha);
@@ -290,6 +295,11 @@ onUnmounted(() => {
   text-decoration: none;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
+}
+
+.navbar__mobile-link:active {
+  color: var(--color-primary-light);
+  background: var(--color-primary-alpha);
 }
 
 .navbar__mobile-link--active {

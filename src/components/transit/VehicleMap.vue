@@ -4,26 +4,14 @@
     <!-- Toolbar -->
     <div class="vehicle-map__toolbar">
       <div class="vehicle-map__search-grid">
-        <div class="vehicle-map__search">
-          <BaseInput
-            v-model="lineFilter"
-            placeholder="Cerca linea"
-            clearable
-            class="vm-filter-input"
-            @keyup.enter="onSearch"
-          >
-            <template #icon><AppIcon name="search" size="sm" /></template>
-          </BaseInput>
-          <button
-            class="vm-search-btn"
-            :disabled="!lineFilter.trim()"
-            aria-label="Cerca linea"
-            @click="onSearch"
-          >
-            <span>Cerca</span>
-          </button>
-        </div>
-
+        <SearchBar
+          v-model="lineFilter"
+          placeholder="Cerca linea"
+          button-label="Cerca"
+          variant="yellow"
+          class="vehicle-map__search"
+          @search="onSearch"
+        />
       </div>
 
       <div class="vm-status-row">
@@ -80,44 +68,12 @@
 
       <Transition name="slide-up">
         <aside v-if="selectedVehicle" class="vehicle-map__detail-panel">
-          <div class="vehicle-map__detail-stack">
-            <section
-              v-if="selectedVehicle"
-              class="vehicle-map__vehicle-card"
-              :style="{ '--line-color': lineColor(selectedVehicle.line) }"
-            >
-              <div class="vehicle-map__vehicle-top">
-                <div class="vehicle-map__vehicle-heading">
-                  <span class="vehicle-map__vehicle-kicker">Mezzo in servizio</span>
-                  <strong class="vehicle-map__vehicle-line">Linea {{ selectedVehicle.line }}</strong>
-                </div>
-                <button
-                  class="vehicle-map__vehicle-close"
-                  type="button"
-                  aria-label="Chiudi dettagli mezzo"
-                  @click="selectedVehicleId = ''"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div class="vehicle-map__vehicle-main">
-                <span class="vehicle-map__vehicle-label">Prossima fermata</span>
-                <strong>{{ selectedVehicle.nextStop || 'Non disponibile' }}</strong>
-              </div>
-
-              <div class="vehicle-map__vehicle-actions">
-                <button
-                  class="vehicle-map__vehicle-action"
-                  type="button"
-                  :disabled="!selectedVehicle.nextStop"
-                  @click="goToStop(selectedVehicle.nextStop)"
-                >
-                  Vedi orari fermata
-                </button>
-              </div>
-            </section>
-          </div>
+          <VehicleCard
+            :vehicle="selectedVehicle"
+            :color="lineColor(selectedVehicle.line)"
+            @close="selectedVehicleId = ''"
+            @go-to-stop="goToStop"
+          />
         </aside>
       </Transition>
 
@@ -130,9 +86,10 @@
 import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import L from 'leaflet'
-import BaseInput from '@/components/ui/BaseInput.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import SearchBar from '@/components/ui/SearchBar.vue'
+import VehicleCard from '@/components/transit/VehicleCard.vue'
 import { lineColor } from '@/utils/lineColors'
+import { escapeHtml } from '@/utils/formatText'
 import { useMqttVehicles } from '@/composables/useMqttVehicles'
 import { useLineRoutes } from '@/composables/useLineRoutes'
 
@@ -319,17 +276,13 @@ function makeBusIcon(vehicle) {
 }
 
 function makeVehiclePopup(vehicle) {
-  return `
-    <div style="font-size:0.96rem;line-height:1.4">
-      <strong>Linea ${vehicle.line}</strong><br>
-      ${vehicle.nextStop ? `Prossima fermata: <strong>${vehicle.nextStop}</strong><br>` : 'Prossima fermata: <strong>non disponibile</strong><br>'}
-      Clicca sul marker per aprire i dettagli.
-    </div>
-  `
-}
-
-function scheduleRender() {
-  renderMarkers()
+  const line     = escapeHtml(vehicle.line)
+  const nextStop = vehicle.nextStop ? escapeHtml(vehicle.nextStop) : null
+  return `<div style="font-size:0.96rem;line-height:1.4">
+    <strong>Linea ${line}</strong><br>
+    Prossima fermata: <strong>${nextStop ?? 'non disponibile'}</strong><br>
+    Clicca sul marker per i dettagli.
+  </div>`
 }
 
 function renderMarkers() {
@@ -418,7 +371,7 @@ function fitAll() {
   }
 }
 
-watch(updateTick, scheduleRender)
+watch(updateTick, renderMarkers)
 watch(activeFilter, () => {
   fittedOnce = false
   selectedVehicleId.value = ''
@@ -557,72 +510,8 @@ onUnmounted(() => {
 }
 
 .vehicle-map__search {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-2);
   width: 340px;
   max-width: 100%;
-}
-
-.vm-filter-input { flex: 1; }
-
-.vm-filter-input:deep(.input) {
-  min-height: 48px;
-  border-color: var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-input);
-}
-
-.vm-filter-input:deep(.input--focused) {
-  border-color: rgba(0, 80, 157, 0.55);
-  box-shadow: 0 0 0 3px rgba(0, 80, 157, 0.1);
-}
-
-.vm-filter-input:deep(.input__field) {
-  font-size: var(--font-size-md);
-  padding: 12px 0;
-}
-
-.vm-filter-input:deep(.input__icon) {
-  color: var(--color-primary);
-}
-
-.vm-search-btn {
-  min-width: 78px;
-  height: 48px;
-  padding: 0 var(--space-4);
-  flex-shrink: 0;
-  border-radius: var(--radius-lg);
-  border: none;
-  background: var(--gtt-imperial);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  transition: all var(--transition-fast);
-  box-shadow: 0 4px 12px rgba(0, 41, 107, 0.3);
-}
-
-.vm-search-btn:hover:not(:disabled) {
-  background: var(--gtt-french);
-  box-shadow: 0 6px 16px rgba(0, 41, 107, 0.4);
-  transform: translateY(-1px);
-}
-
-.vm-search-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-@media (max-width: 420px) {
-  .vm-search-btn {
-    min-width: 68px;
-    padding: 0 var(--space-3);
-  }
 }
 
 .vehicle-map__search-grid {
@@ -641,124 +530,6 @@ onUnmounted(() => {
   max-height: 58vh;
   overflow: auto;
   z-index: 850;
-  backdrop-filter: blur(10px);
-}
-
-.vehicle-map__detail-stack {
-  display: grid;
-  gap: var(--space-3);
-}
-
-.vehicle-map__vehicle-card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-top: 3px solid var(--line-color, var(--color-primary));
-  border-radius: var(--radius-xl);
-  box-shadow: 0 8px 32px rgba(0, 41, 107, 0.14);
-  overflow: hidden;
-}
-
-.vehicle-map__vehicle-card {
-  padding: var(--space-3);
-}
-
-.vehicle-map__vehicle-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.vehicle-map__vehicle-heading {
-  min-width: 0;
-}
-
-.vehicle-map__vehicle-kicker,
-.vehicle-map__vehicle-label {
-  display: block;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.vehicle-map__vehicle-line {
-  display: inline-flex;
-  align-items: center;
-  margin-top: var(--space-1);
-  color: var(--line-color, var(--color-text-primary));
-  font-size: clamp(1.2rem, 4.8vw, 1.55rem);
-  font-weight: var(--font-weight-extrabold);
-  line-height: 1;
-}
-
-.vehicle-map__vehicle-line::before {
-  content: '';
-  width: 0.55rem;
-  height: 0.55rem;
-  margin-right: var(--space-2);
-  border-radius: var(--radius-full);
-  background: var(--line-color, var(--color-primary));
-  box-shadow: 0 0 0 0.28rem color-mix(in srgb, var(--line-color, var(--color-primary)) 20%, transparent);
-}
-
-.vehicle-map__vehicle-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  flex: 0 0 auto;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-elevated);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: var(--font-size-xl);
-  line-height: 1;
-  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
-}
-
-.vehicle-map__vehicle-close:hover {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-  transform: translateY(-1px);
-}
-
-.vehicle-map__vehicle-main {
-  display: grid;
-  gap: var(--space-1);
-  margin-top: var(--space-3);
-  padding: var(--space-3);
-  border: 1px solid rgba(230, 51, 41, 0.16);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, rgba(230, 51, 41, 0.16), rgba(255, 255, 255, 0.04));
-}
-
-.vehicle-map__vehicle-main strong {
-  color: var(--color-text-primary);
-  font-size: var(--font-size-md);
-  line-height: 1.25;
-}
-
-.vehicle-map__vehicle-actions {
-  display: grid;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
-}
-
-.vehicle-map__vehicle-action {
-  min-height: 40px;
-  padding: var(--space-2) var(--space-3);
-  border: none;
-  border-radius: var(--radius-lg);
-  background: var(--color-primary);
-  color: #fff;
-  cursor: pointer;
-  font-weight: var(--font-weight-semibold);
-  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
-  box-shadow: 0 10px 22px rgba(230, 51, 41, 0.22);
 }
 
 @media (max-width: 640px) {
@@ -769,21 +540,6 @@ onUnmounted(() => {
     width: auto;
     max-height: 46vh;
   }
-
-  .vehicle-map__vehicle-card {
-    padding: var(--space-3);
-  }
-}
-
-.vehicle-map__vehicle-action:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-  transform: translateY(-1px);
-}
-
-.vehicle-map__vehicle-action:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
 }
 
 .vehicle-map__route-status {

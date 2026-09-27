@@ -1,5 +1,10 @@
 const ROMAN_RE = /^m{0,4}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$/i
 
+const HTML_ESCAPE = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+export function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => HTML_ESCAPE[c])
+}
+
 const STOPWORDS = new Set([
   'di','da','del','dei','della','delle','degli',
   'il','lo','la','le','li','gli',
