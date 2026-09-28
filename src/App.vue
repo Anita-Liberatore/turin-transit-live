@@ -95,6 +95,18 @@ import AppNavbar from '@/components/ui/AppNavbar.vue'
   font-weight: var(--font-weight-medium);
 }
 
+@media (max-width: 599px) {
+  /* Spazio per bottom nav fissa */
+  .app {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+
+  /* Footer non utile su mobile con bottom nav */
+  .app-footer {
+    display: none;
+  }
+}
+
 @media (min-width: 600px) {
   .app-footer__inner {
     flex-direction: row;

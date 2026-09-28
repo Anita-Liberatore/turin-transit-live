@@ -48,13 +48,15 @@ defineEmits(['update:modelValue', 'search'])
 
 .search-bar__input {
   flex: 1;
+  min-width: 0;
 }
 
 .search-bar__input:deep(.input) {
-  min-height: 48px;
-  border-color: var(--color-border);
+  height: 46px;
+  min-height: 46px;
   border-radius: var(--radius-lg);
   background: var(--color-bg-input);
+  border-color: var(--color-border);
 }
 
 .search-bar__input:deep(.input--focused) {
@@ -63,19 +65,17 @@ defineEmits(['update:modelValue', 'search'])
 }
 
 .search-bar__input:deep(.input__field) {
-  font-size: var(--font-size-md);
-  padding: 12px 0;
+  font-size: var(--font-size-sm);
 }
 
 .search-bar__input:deep(.input__icon) {
-  color: var(--color-primary);
+  color: var(--color-text-muted);
 }
 
 .search-bar__btn {
-  min-width: 78px;
-  height: 48px;
-  padding: 0 var(--space-4);
   flex-shrink: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
   border-radius: var(--radius-lg);
   border: none;
   cursor: pointer;
@@ -84,44 +84,28 @@ defineEmits(['update:modelValue', 'search'])
   justify-content: center;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
-  transition: all var(--transition-fast);
+  white-space: nowrap;
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
-/* Yellow variant — primary CTA (coerente con hero) */
 .search-bar__btn--yellow {
   background: var(--gtt-yellow);
   color: var(--gtt-imperial);
-  box-shadow: 0 4px 14px rgba(253, 197, 0, 0.4);
 }
-.search-bar__btn--yellow:hover:not(:disabled) {
+.search-bar__btn--yellow:hover {
   background: var(--gtt-gold);
-  box-shadow: 0 6px 18px rgba(253, 197, 0, 0.5);
-  transform: translateY(-1px);
 }
 
-/* Blue variant — su sfondi chiari */
 .search-bar__btn--blue {
   background: var(--gtt-imperial);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 41, 107, 0.3);
 }
-.search-bar__btn--blue:hover:not(:disabled) {
+.search-bar__btn--blue:hover {
   background: var(--gtt-french);
-  box-shadow: 0 6px 16px rgba(0, 41, 107, 0.4);
-  transform: translateY(-1px);
 }
 
 .search-bar__btn:disabled {
   opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
-
-@media (max-width: 420px) {
-  .search-bar__btn {
-    min-width: 68px;
-    padding: 0 var(--space-3);
-  }
+  cursor: default;
 }
 </style>

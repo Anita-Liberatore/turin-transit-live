@@ -462,13 +462,35 @@ a.feature-card:hover .feature-card__arrow {
   border-radius: var(--radius-lg);
 }
 
-@media (max-width: 420px) {
-  .quick__form {
+@media (max-width: 599px) {
+  /* Hero compatto */
+  .hero {
+    min-height: auto;
+    padding: var(--space-10) 0 var(--space-8);
+  }
+
+  /* Bottoni hero full-width e impilati */
+  .hero__actions {
     flex-direction: column;
   }
 
-  .quick__form > :last-child {
+  .hero__actions a {
     width: 100%;
+  }
+
+  .hero__actions :deep(.btn) {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Quick form — rimane orizzontale su mobile */
+  .quick__form > :first-child:deep(.input) {
+    min-height: 46px;
+  }
+
+  .quick__form > :last-child {
+    min-height: 46px;
+    min-width: 80px;
   }
 }
 

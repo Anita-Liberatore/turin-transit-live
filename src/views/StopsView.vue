@@ -3,11 +3,8 @@
     <div class="stops-view__inner">
 
       <header class="stops-view__header">
-        <div class="stops-view__title-row">
-          <AppIcon name="stop" size="lg" class="stops-view__title-icon" />
-          <h1 class="stops-view__title">Fermate</h1>
-        </div>
-        <p class="stops-view__sub">Digita numero o nome fermata.</p>
+        <AppIcon name="bus" size="md" class="stops-view__title-icon" />
+        <h1 class="stops-view__title">Fermate</h1>
       </header>
 
       <SearchBar
@@ -15,6 +12,7 @@
         placeholder="Numero o nome fermata"
         button-label="Cerca"
         variant="yellow"
+        class="stops-view__search"
         :input-attrs="{ inputmode: 'search', enterkeyhint: 'search', autocomplete: 'off' }"
         @search="searchOnDemand"
       />
@@ -79,6 +77,7 @@
 <script setup>
 import { computed, ref, watch, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import SearchBar from '@/components/ui/SearchBar.vue'
 import StopCard from '@/components/transit/StopCard.vue'
 import StopCardSkeleton from '@/components/transit/StopCardSkeleton.vue'
@@ -204,54 +203,32 @@ watch(
   gap: var(--space-5);
 }
 
-/* ── Header con gradiente GTT ── */
+/* ── Header pill ── */
 .stops-view__header {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(120deg, var(--gtt-imperial) 0%, var(--gtt-french) 55%, var(--gtt-azure) 100%);
-  padding: var(--space-5) var(--space-6);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-/* Blob giallo decorativo */
-.stops-view__header::before {
-  content: '';
-  position: absolute;
-  right: -40px;
-  top: -40px;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(253,197,0,0.25) 0%, transparent 70%);
-  filter: blur(20px);
-  pointer-events: none;
-}
-
-.stops-view__title-row {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  position: relative;
+  gap: var(--space-2);
+  background: linear-gradient(105deg, var(--gtt-imperial) 0%, var(--gtt-french) 60%, var(--gtt-azure) 100%);
+  border-radius: var(--radius-full);
+  padding: 0 var(--space-5);
+  height: var(--nav-height);
+  width: 100%;
 }
 
 .stops-view__title-icon {
-  color: var(--gtt-yellow);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.stops-view__search {
+  width: 100%;
 }
 
 .stops-view__title {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-extrabold);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: #ffffff;
-}
-
-.stops-view__sub {
-  font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.72);
-  position: relative;
 }
 
 
@@ -284,6 +261,20 @@ watch(
 .stops-view__empty p {
   font-size: var(--font-size-sm);
   max-width: 280px;
+}
+
+@media (max-width: 599px) {
+  .stops-view {
+    padding: var(--space-3);
+  }
+
+  .stops-view__inner {
+    gap: var(--space-3);
+  }
+
+  .stops-view__header {
+    border-radius: var(--radius-xl);
+  }
 }
 
 @media (min-width: 600px) {

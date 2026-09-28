@@ -3,30 +3,22 @@
 
     <!-- Toolbar -->
     <div class="vehicle-map__toolbar">
-      <div class="vehicle-map__search-grid">
-        <SearchBar
-          v-model="lineFilter"
-          placeholder="Cerca linea"
-          button-label="Cerca"
-          variant="yellow"
-          class="vehicle-map__search"
-          @search="onSearch"
-        />
-      </div>
-
-      <div class="vm-status-row">
-        <div v-if="connected && activeFilter && !lineLoading" class="vm-status">
-          <span class="vm-status__dot"></span>
-          Linea {{ activeFilter }} · {{ filteredVehicles.length }} mezzi
-        </div>
-        <div v-else-if="connected" class="vm-status vm-status--hint">
-          <span class="vm-status__dot vm-status__dot--info"></span>
-          Connesso a MQTT · ricerca linea
-        </div>
+      <SearchBar
+        v-model="lineFilter"
+        placeholder="Cerca linea"
+        button-label="Cerca"
+        variant="yellow"
+        class="vehicle-map__search"
+        @search="onSearch"
+      />
+      <div v-if="connected && activeFilter && !lineLoading" class="vm-status">
+        <span class="vm-status__dot"></span>
+        Linea {{ activeFilter }} · {{ filteredVehicles.length }} mezzi
       </div>
       <div class="vehicle-map__route-status">
         <span v-if="lineLoading">Caricamento linea {{ activeFilter }}...</span>
         <span v-else-if="routeError" class="vehicle-map__route-error">Errore percorso: {{ routeError }}</span>
+        <span v-else-if="geoError" class="vehicle-map__route-error">{{ geoError }}</span>
       </div>
     </div>
 
@@ -66,6 +58,23 @@
         </div>
       </Transition>
 
+      <!-- Locate FAB: visible only when vehicles are on map -->
+      <Transition name="vm-locate-pop">
+        <button
+          v-if="geoSupported && activeFilter && filteredVehicles.length > 0"
+          class="vm-locate-fab"
+          :class="{ 'vm-locate-fab--active': geoActive, 'vm-locate-fab--loading': geoLoading }"
+          :aria-pressed="geoActive"
+          @click="geoToggle"
+        >
+          <AppIcon name="locate" size="md" />
+          <span class="vm-locate-fab__label">
+            {{ geoLoading ? 'Ricerca...' : geoActive ? 'Posizione attiva' : 'La mia posizione' }}
+          </span>
+          <span v-if="geoActive && !geoLoading" class="vm-locate-fab__dot"></span>
+        </button>
+      </Transition>
+
       <Transition name="slide-up">
         <aside v-if="selectedVehicle" class="vehicle-map__detail-panel">
           <VehicleCard
@@ -88,10 +97,13 @@ import { useRouter } from 'vue-router'
 import L from 'leaflet'
 import SearchBar from '@/components/ui/SearchBar.vue'
 import VehicleCard from '@/components/transit/VehicleCard.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import { lineColor } from '@/utils/lineColors'
 import { escapeHtml } from '@/utils/formatText'
 import { useMqttVehicles } from '@/composables/useMqttVehicles'
 import { useLineRoutes } from '@/composables/useLineRoutes'
+import { useGeolocation } from '@/composables/useGeolocation'
 
 const router = useRouter()
 const mapEl          = ref(null)
@@ -111,6 +123,10 @@ let vehicleWaitTimer = null
 
 const { vehicles, updateTick, connected, connecting, error, connect, disconnect } = useMqttVehicles()
 const { routes: routeVariants, loading: routeLoading, error: routeError, load: loadRoutes, clear: clearRoutes } = useLineRoutes()
+const { coords: geoCoords, error: geoError, loading: geoLoading, active: geoActive, supported: geoSupported, toggle: geoToggle } = useGeolocation()
+
+let locationMarker = null
+let accuracyCircle = null
 
 const rawFilteredVehicles = computed(() =>
   activeFilter.value
@@ -385,6 +401,47 @@ watch(selectedVehicleId, id => {
 watch(routeVariants, finishLineLoading)
 watch(lineReady, finishLineLoading)
 
+// ——— Geolocation ———
+function makeLocationIcon() {
+  return L.divIcon({
+    className: '',
+    html: '<div class="location-dot"><div class="location-dot__pulse"></div><div class="location-dot__core"></div></div>',
+    iconSize:   [20, 20],
+    iconAnchor: [10, 10],
+  })
+}
+
+watch(geoCoords, pos => {
+  if (!map || !pos) return
+  const latlng = [pos.lat, pos.lng]
+
+  if (!locationMarker) {
+    locationMarker = L.marker(latlng, { icon: makeLocationIcon(), zIndexOffset: 1000, interactive: false }).addTo(map)
+    accuracyCircle = L.circle(latlng, {
+      radius:      pos.accuracy,
+      color:       '#00509d',
+      fillColor:   '#00509d',
+      fillOpacity: 0.08,
+      weight:      1,
+      interactive: false,
+    }).addTo(map)
+    map.setView(latlng, Math.max(map.getZoom(), 15))
+  } else {
+    locationMarker.setLatLng(latlng)
+    accuracyCircle.setLatLng(latlng)
+    accuracyCircle.setRadius(pos.accuracy)
+  }
+})
+
+watch(geoActive, active => {
+  if (!active) {
+    locationMarker?.remove()
+    accuracyCircle?.remove()
+    locationMarker = null
+    accuracyCircle = null
+  }
+})
+
 // ——— Leaflet init ———
 onMounted(async () => {
   await nextTick()
@@ -418,6 +475,8 @@ onUnmounted(() => {
   Object.values(markers).forEach(m => m.remove())
   Object.values(paths).forEach(p => p.remove())
   clearRouteShapes()
+  locationMarker?.remove()
+  accuracyCircle?.remove()
   markers = {}
   paths = {}
   if (map) { map.remove(); map = null }
@@ -480,6 +539,38 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
+/* Marker posizione utente */
+.location-dot {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+.location-dot__core {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background: #00509d;
+  border: 2.5px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 80, 157, 0.5);
+}
+.location-dot__pulse {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.3);
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 80, 157, 0.18);
+  border-radius: 50%;
+  animation: location-pulse 2s ease-out infinite;
+}
+@keyframes location-pulse {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1);   opacity: 0; }
+}
+
 /* Popup leaflet override per mappa chiara */
 .leaflet-popup-content-wrapper {
   background: #fff !important;
@@ -504,14 +595,97 @@ onUnmounted(() => {
 /* Toolbar */
 .vehicle-map__toolbar {
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .vehicle-map__search {
-  width: 340px;
-  max-width: 100%;
+  width: 100%;
+}
+
+/* ── Locate FAB ── */
+.vm-locate-fab {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-4);
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 44px;
+  padding: 0 var(--space-4) 0 var(--space-3);
+  border-radius: var(--radius-full);
+  border: none;
+  background: #fff;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18), 0 1px 4px rgba(0, 0, 0, 0.12);
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.vm-locate-fab:hover {
+  background: #f0f5ff;
+  box-shadow: 0 4px 16px rgba(0, 41, 107, 0.2), 0 1px 4px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.vm-locate-fab--active {
+  background: var(--gtt-imperial);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 41, 107, 0.35), 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.vm-locate-fab--active:hover {
+  background: var(--gtt-french);
+}
+
+.vm-locate-fab--loading .vm-locate-fab__label {
+  opacity: 0.7;
+}
+
+.vm-locate-fab__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gtt-yellow);
+  flex-shrink: 0;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.vm-locate-fab--loading > .icon {
+  animation: locate-spin 1s linear infinite;
+}
+
+@keyframes locate-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Appear animation */
+@keyframes vm-locate-pop-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.vm-locate-pop-enter-active {
+  animation: vm-locate-pop-in 0.2s ease;
+}
+
+.vm-locate-pop-leave-active {
+  animation: vm-locate-pop-in 0.15s ease reverse;
+}
+
+@media (max-width: 640px) {
+  .vm-locate-fab {
+    bottom: var(--space-3);
+    left: var(--space-3);
+    height: 48px;
+    font-size: var(--font-size-base);
+    padding: 0 var(--space-4) 0 var(--space-3);
+  }
 }
 
 .vehicle-map__search-grid {
@@ -578,6 +752,19 @@ onUnmounted(() => {
   overflow: hidden;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 599px) {
+  .vehicle-map__header {
+    padding: var(--space-4);
+    gap: var(--space-3);
+    border-radius: var(--radius-xl);
+  }
+
+  .vehicle-map__wrap {
+    min-height: 0;
+    border-radius: var(--radius-lg);
+  }
 }
 .vehicle-map__leaflet {
   position: absolute;

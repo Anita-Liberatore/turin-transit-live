@@ -57,6 +57,20 @@
       </div>
     </Transition>
   </nav>
+
+  <!-- Bottom tab bar — mobile only -->
+  <nav class="bottom-nav" aria-label="Navigazione principale">
+    <RouterLink
+      v-for="link in navLinks"
+      :key="link.to"
+      :to="link.to"
+      class="bottom-nav__tab"
+      active-class="bottom-nav__tab--active"
+    >
+      <AppIcon :name="link.icon" size="md" />
+      <span class="bottom-nav__label">{{ link.label }}</span>
+    </RouterLink>
+  </nav>
 </template>
 
 <script setup>
@@ -344,6 +358,67 @@ onUnmounted(() => {
   .navbar__menu-toggle,
   .navbar__mobile-panel {
     display: none;
+  }
+}
+
+/* ── Bottom tab bar ── */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  /* Nascondi hamburger — la bottom nav sostituisce */
+  .navbar__menu-toggle {
+    display: none;
+  }
+
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-sticky);
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--color-border);
+    justify-content: space-around;
+    align-items: stretch;
+  }
+
+  .bottom-nav__tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+    transition: color var(--transition-fast);
+    padding: var(--space-2) 0;
+  }
+
+  .bottom-nav__tab:active {
+    color: var(--color-primary-light);
+  }
+
+  .bottom-nav__tab--active {
+    color: var(--color-primary);
+  }
+
+  .bottom-nav__tab--active .bottom-nav__label {
+    font-weight: var(--font-weight-bold);
+  }
+
+  .bottom-nav__label {
+    display: block;
   }
 }
 
