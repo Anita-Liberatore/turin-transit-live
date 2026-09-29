@@ -3,14 +3,29 @@
 
     <!-- Toolbar -->
     <div class="vehicle-map__toolbar">
-      <SearchBar
-        v-model="lineFilter"
-        placeholder="Cerca linea"
-        button-label="Cerca"
-        variant="yellow"
-        class="vehicle-map__search"
-        @search="onSearch"
-      />
+      <div class="vehicle-map__toolbar-row" :class="{ 'vehicle-map__toolbar-row--with-locate': geoSupported && activeFilter && filteredVehicles.length > 0 }">
+        <SearchBar
+          v-model="lineFilter"
+          placeholder="Cerca linea"
+          button-label="Cerca"
+          variant="yellow"
+          class="vehicle-map__search"
+          @search="onSearch"
+        />
+        <Transition name="vm-locate-pop">
+          <button
+            v-if="geoSupported && activeFilter && filteredVehicles.length > 0"
+            class="vm-locate-btn"
+            :class="{ 'vm-locate-btn--active': geoActive, 'vm-locate-btn--loading': geoLoading }"
+            :aria-pressed="geoActive"
+            :title="geoLoading ? 'Ricerca…' : geoActive ? 'Posizione attiva' : 'Usa la mia posizione'"
+            @click="geoToggle"
+          >
+            <AppIcon name="locate" size="sm" />
+            <span v-if="geoActive && !geoLoading" class="vm-locate-btn__dot"></span>
+          </button>
+        </Transition>
+      </div>
       <div v-if="connected && activeFilter && !lineLoading" class="vm-status">
         <span class="vm-status__dot"></span>
         Linea {{ activeFilter }} · {{ filteredVehicles.length }} mezzi
@@ -58,24 +73,8 @@
         </div>
       </Transition>
 
-      <!-- Locate FAB: visible only when vehicles are on map -->
-      <Transition name="vm-locate-pop">
-        <button
-          v-if="geoSupported && activeFilter && filteredVehicles.length > 0"
-          class="vm-locate-fab"
-          :class="{ 'vm-locate-fab--active': geoActive, 'vm-locate-fab--loading': geoLoading }"
-          :aria-pressed="geoActive"
-          @click="geoToggle"
-        >
-          <AppIcon name="locate" size="md" />
-          <span class="vm-locate-fab__label">
-            {{ geoLoading ? 'Ricerca...' : geoActive ? 'Posizione attiva' : 'La mia posizione' }}
-          </span>
-          <span v-if="geoActive && !geoLoading" class="vm-locate-fab__dot"></span>
-        </button>
-      </Transition>
 
-      <Transition name="slide-up">
+<Transition name="slide-up">
         <aside v-if="selectedVehicle" class="vehicle-map__detail-panel">
           <VehicleCard
             :vehicle="selectedVehicle"
@@ -603,60 +602,74 @@ onUnmounted(() => {
   width: 100%;
 }
 
-/* ── Locate FAB ── */
-.vm-locate-fab {
-  position: absolute;
-  bottom: var(--space-4);
-  left: var(--space-4);
-  z-index: 800;
+/* ── Toolbar row ── */
+.vehicle-map__toolbar-row {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Quando il locate è presente, SearchBar perde il border-radius destro */
+.vehicle-map__toolbar-row--with-locate .vehicle-map__search {
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  border-right: none;
+  flex: 1;
+}
+
+.vehicle-map__toolbar-row--with-locate .vehicle-map__search:deep(.search-bar) {
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  border-right: none;
+}
+
+/* ── Locate button (inline, top) ── */
+.vm-locate-btn {
+  flex-shrink: 0;
+  width: 48px;
+  border: 1.5px solid var(--color-border);
+  border-left: none;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  height: 44px;
-  padding: 0 var(--space-4) 0 var(--space-3);
-  border-radius: var(--radius-full);
-  border: none;
-  background: #fff;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18), 0 1px 4px rgba(0, 0, 0, 0.12);
-  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
-  white-space: nowrap;
+  position: relative;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.vm-locate-fab:hover {
-  background: #f0f5ff;
-  box-shadow: 0 4px 16px rgba(0, 41, 107, 0.2), 0 1px 4px rgba(0, 0, 0, 0.12);
-  transform: translateY(-1px);
+/* Quando la SearchBar è a fuoco, estendi il highlight blu al locate btn */
+.vehicle-map__toolbar-row:has(.search-bar:focus-within) .vm-locate-btn {
+  border-color: var(--color-border-active);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha);
+  clip-path: inset(-4px -4px -4px 0);
 }
 
-.vm-locate-fab--active {
+.vm-locate-btn:hover {
+  background: var(--color-bg-elevated);
+  color: var(--color-primary);
+}
+
+.vm-locate-btn--active {
   background: var(--gtt-imperial);
   color: #fff;
-  box-shadow: 0 4px 16px rgba(0, 41, 107, 0.35), 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
-.vm-locate-fab--active:hover {
+.vm-locate-btn--active:hover {
   background: var(--gtt-french);
 }
 
-.vm-locate-fab--loading .vm-locate-fab__label {
-  opacity: 0.7;
+.vm-locate-btn--loading > .icon {
+  animation: locate-spin 1s linear infinite;
 }
 
-.vm-locate-fab__dot {
-  width: 7px;
-  height: 7px;
+.vm-locate-btn__dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--gtt-yellow);
   flex-shrink: 0;
   animation: glow-pulse 2s ease-in-out infinite;
-}
-
-.vm-locate-fab--loading > .icon {
-  animation: locate-spin 1s linear infinite;
 }
 
 @keyframes locate-spin {
@@ -666,27 +679,12 @@ onUnmounted(() => {
 
 /* Appear animation */
 @keyframes vm-locate-pop-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.9); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-.vm-locate-pop-enter-active {
-  animation: vm-locate-pop-in 0.2s ease;
-}
-
-.vm-locate-pop-leave-active {
-  animation: vm-locate-pop-in 0.15s ease reverse;
-}
-
-@media (max-width: 640px) {
-  .vm-locate-fab {
-    bottom: var(--space-3);
-    left: var(--space-3);
-    height: 48px;
-    font-size: var(--font-size-base);
-    padding: 0 var(--space-4) 0 var(--space-3);
-  }
-}
+.vm-locate-pop-enter-active { animation: vm-locate-pop-in 0.18s ease; }
+.vm-locate-pop-leave-active { animation: vm-locate-pop-in 0.12s ease reverse; }
 
 .vehicle-map__search-grid {
   display: flex;

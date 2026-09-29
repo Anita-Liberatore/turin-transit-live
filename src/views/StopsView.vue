@@ -210,8 +210,7 @@ watch(
   gap: var(--space-2);
   background: linear-gradient(105deg, var(--gtt-imperial) 0%, var(--gtt-french) 60%, var(--gtt-azure) 100%);
   border-radius: var(--radius-full);
-  padding: 0 var(--space-5);
-  height: var(--nav-height);
+  padding: var(--space-4) var(--space-5);
   width: 100%;
 }
 

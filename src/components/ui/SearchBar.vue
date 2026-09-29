@@ -1,30 +1,28 @@
 <template>
-  <div class="search-bar">
-    <BaseInput
-      :model-value="modelValue"
+  <div class="search-bar" :class="[`search-bar--${variant}`, { 'search-bar--seamless': seamless }]">
+    <span class="search-bar__icon" aria-hidden="true">
+      <AppIcon name="search" size="sm" />
+    </span>
+    <input
+      class="search-bar__field"
+      :value="modelValue"
       :placeholder="placeholder"
-      clearable
-      class="search-bar__input"
       v-bind="inputAttrs"
-      @update:model-value="$emit('update:modelValue', $event)"
+      @input="$emit('update:modelValue', $event.target.value)"
       @keyup.enter="$emit('search')"
-    >
-      <template #icon><AppIcon name="search" size="sm" /></template>
-    </BaseInput>
+    />
     <button
       class="search-bar__btn"
-      :class="`search-bar__btn--${variant}`"
       :disabled="!modelValue?.trim() || disabled"
       :aria-label="buttonLabel"
       @click="$emit('search')"
     >
-      <span>{{ buttonLabel }}</span>
+      {{ buttonLabel }}
     </button>
   </div>
 </template>
 
 <script setup>
-import BaseInput from './BaseInput.vue'
 import AppIcon from './AppIcon.vue'
 
 defineProps({
@@ -32,80 +30,107 @@ defineProps({
   placeholder: { type: String,  default: 'Cerca...' },
   buttonLabel: { type: String,  default: 'Cerca' },
   disabled:    { type: Boolean, default: false },
-  variant:     { type: String,  default: 'yellow' }, // 'yellow' | 'blue'
+  variant:     { type: String,  default: 'yellow' },
   inputAttrs:  { type: Object,  default: () => ({}) },
+  seamless:    { type: Boolean, default: false }, // rimuove bordo/radius, usato dentro un wrapper
 })
 
 defineEmits(['update:modelValue', 'search'])
 </script>
 
 <style scoped>
+/* ── Container unico ── */
 .search-bar {
   display: flex;
-  align-items: stretch;
-  gap: var(--space-2);
-}
-
-.search-bar__input {
-  flex: 1;
-  min-width: 0;
-}
-
-.search-bar__input:deep(.input) {
-  height: 46px;
-  min-height: 46px;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  background: var(--color-bg-card);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: var(--color-bg-input);
-  border-color: var(--color-border);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.search-bar__input:deep(.input--focused) {
+.search-bar:focus-within {
   border-color: var(--color-border-active);
   box-shadow: 0 0 0 3px var(--color-primary-alpha);
 }
 
-.search-bar__input:deep(.input__field) {
-  font-size: var(--font-size-sm);
-}
-
-.search-bar__input:deep(.input__icon) {
+/* Icona search */
+.search-bar__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-3);
   color: var(--color-text-muted);
 }
 
+/* Campo testo */
+.search-bar__field {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  padding: 0;
+}
+
+.search-bar__field::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Separatore visivo prima del button */
 .search-bar__btn {
   flex-shrink: 0;
-  height: 46px;
+  height: 100%;
   padding: 0 var(--space-4);
-  border-radius: var(--radius-lg);
   border: none;
+  border-left: 1.5px solid var(--color-border);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   white-space: nowrap;
-  transition: background var(--transition-fast), transform var(--transition-fast);
+  transition: background var(--transition-fast);
 }
 
-.search-bar__btn--yellow {
+/* Variante gialla */
+.search-bar--yellow .search-bar__btn {
   background: var(--gtt-yellow);
   color: var(--gtt-imperial);
+  border-left-color: transparent;
 }
-.search-bar__btn--yellow:hover {
+.search-bar--yellow .search-bar__btn:hover:not(:disabled) {
   background: var(--gtt-gold);
 }
 
-.search-bar__btn--blue {
+/* Variante blu */
+.search-bar--blue .search-bar__btn {
   background: var(--gtt-imperial);
   color: #fff;
+  border-left-color: transparent;
 }
-.search-bar__btn--blue:hover {
+.search-bar--blue .search-bar__btn:hover:not(:disabled) {
   background: var(--gtt-french);
 }
 
 .search-bar__btn:disabled {
   opacity: 0.45;
   cursor: default;
+}
+
+/* Modalità seamless: niente bordo/radius propri, il wrapper li gestisce */
+.search-bar--seamless {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  flex: 1;
+}
+.search-bar--seamless:focus-within {
+  box-shadow: none;
+  border-color: transparent;
 }
 </style>

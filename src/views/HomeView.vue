@@ -74,19 +74,15 @@
       <div class="quick__inner">
         <h2 class="quick__title">Cerca una fermata</h2>
         <p class="quick__sub">Inserisci il numero della fermata GTT</p>
-        <div class="quick__form">
-          <BaseInput
-            v-model="quickStop"
-            placeholder="Numero fermata"
-            clearable
-            @keyup.enter="goToStop"
-          >
-            <template #icon><AppIcon name="search" size="sm" /></template>
-          </BaseInput>
-          <BaseButton @click="goToStop" :disabled="!quickStop.trim()">
-            Cerca
-          </BaseButton>
-        </div>
+        <SearchBar
+          v-model="quickStop"
+          placeholder="Numero fermata"
+          button-label="Cerca"
+          variant="yellow"
+          class="quick__search"
+          :input-attrs="{ inputmode: 'numeric', enterkeyhint: 'search' }"
+          @search="goToStop"
+        />
       </div>
     </section>
 
@@ -96,8 +92,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
+import SearchBar from '@/components/ui/SearchBar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 
 const router = useRouter()
@@ -422,44 +417,8 @@ a.feature-card:hover .feature-card__arrow {
   margin-top: calc(-1 * var(--space-2));
 }
 
-.quick__form {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-2);
-}
-
-.quick__form > :first-child {
-  flex: 1;
-}
-
-.quick__form > :first-child:deep(.input) {
-  min-height: 48px;
-  border-color: var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-input);
-  box-shadow: inset 0 1px 0 var(--color-overlay-subtle);
-}
-
-.quick__form > :first-child:deep(.input--focused) {
-  border-color: rgba(0, 85, 164, 0.7);
-  box-shadow:
-    0 0 0 3px rgba(0, 85, 164, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.quick__form > :first-child:deep(.input__field) {
-  font-size: var(--font-size-md);
-  padding: 12px 0;
-}
-
-.quick__form > :first-child:deep(.input__icon) {
-  color: var(--color-primary-light);
-}
-
-.quick__form > :last-child {
-  min-width: 84px;
-  min-height: 48px;
-  border-radius: var(--radius-lg);
+.quick__search {
+  width: 100%;
 }
 
 @media (max-width: 599px) {
@@ -483,15 +442,6 @@ a.feature-card:hover .feature-card__arrow {
     justify-content: center;
   }
 
-  /* Quick form — rimane orizzontale su mobile */
-  .quick__form > :first-child:deep(.input) {
-    min-height: 46px;
-  }
-
-  .quick__form > :last-child {
-    min-height: 46px;
-    min-width: 80px;
-  }
 }
 
 
