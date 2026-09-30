@@ -48,7 +48,7 @@
 
       <RouterLink to="/mappa" class="feature-card">
         <div class="feature-card__icon-wrap feature-card__icon-wrap--blue">
-          <AppIcon name="location" size="lg" />
+          <AppIcon name="map" size="lg" />
         </div>
         <div class="feature-card__body">
           <h3 class="feature-card__title">Mappa Live</h3>

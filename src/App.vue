@@ -101,9 +101,16 @@ import AppNavbar from '@/components/ui/AppNavbar.vue'
     padding-bottom: calc(60px + env(safe-area-inset-bottom));
   }
 
-  /* Footer non utile su mobile con bottom nav */
   .app-footer {
-    display: none;
+    font-size: 10px;
+    padding: var(--space-3) var(--space-4);
+    text-align: center;
+  }
+
+  .app-footer__inner {
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: center;
   }
 }
 
