@@ -651,12 +651,14 @@ onUnmounted(() => {
 }
 
 .vm-locate-btn--active {
-  background: var(--gtt-imperial);
-  color: #fff;
+  background: var(--gtt-yellow);
+  color: var(--gtt-imperial);
+  border-color: var(--gtt-yellow);
 }
 
 .vm-locate-btn--active:hover {
-  background: var(--gtt-french);
+  background: var(--gtt-gold);
+  border-color: var(--gtt-gold);
 }
 
 .vm-locate-btn--loading > .icon {
